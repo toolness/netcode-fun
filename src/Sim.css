@@ -1,7 +1,16 @@
 .Sim-viz {
-  background: pink;
+  background: black;
+  position: relative;
 }
 
 .Player-viz {
-  
+  position: absolute;
+}
+
+.Player-number-1 {
+  background: blue;
+}
+
+.Player-number-2 {
+  background: red;
 }

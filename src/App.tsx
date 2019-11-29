@@ -3,7 +3,7 @@ import './App.css';
 import { Player, Sim, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 
-const PLAYER_SIZE: Vec2 = {x: 10, y: 10};
+const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
 
 const INITIAL_P1: Player = {
