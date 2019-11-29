@@ -1,12 +1,6 @@
 import React from 'react';
 import './Sim.css';
-
-export const VEC2_ZERO: Vec2 = {x: 0, y: 0};
-
-export interface Vec2 {
-  x: number;
-  y: number;
-}
+import { Vec2, vec2Equals, VEC2_ZERO, vec2Add } from './Vec2';
 
 export interface Player {
   number: number;
@@ -21,29 +15,13 @@ export interface Sim {
   time: number;
 }
 
-export function vec2Equals(a: Vec2, b: Vec2): boolean {
-  return a.x === b.x && a.y === b.y;
-};
-
-export function addVec2(a: Vec2, b: Vec2): Vec2 {
-  return {x: a.x + b.x, y: a.y + b.y};
-}
-
-export function subtractVec2(a: Vec2, b: Vec2): Vec2 {
-  return addVec2(a, scaleVec2(b, -1));
-}
-
-export function scaleVec2(v: Vec2, amount: number): Vec2 {
-  return {x: amount * v.x, y: amount * v.y};
-}
-
 function nextPlayerState(p: Player): Player {
   if (vec2Equals(p.velocity, VEC2_ZERO)) {
     return p;
   }
   return {
     ...p,
-    position: addVec2(p.position, p.velocity)
+    position: vec2Add(p.position, p.velocity)
   };
 }
 

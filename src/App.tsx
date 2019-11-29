@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
-import { Player, Vec2, Sim, SimViz, VEC2_ZERO, subtractVec2 } from './Sim';
+import { Player, Sim, SimViz } from './Sim';
+import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 
 const PLAYER_SIZE: Vec2 = {x: 10, y: 10};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -14,7 +15,7 @@ const INITIAL_P1: Player = {
 
 const INITIAL_P2: Player = {
   number: 2,
-  position: subtractVec2(SIM_SIZE, PLAYER_SIZE),
+  position: vec2Subtract(SIM_SIZE, PLAYER_SIZE),
   velocity: VEC2_ZERO,
   size: PLAYER_SIZE,
 };
