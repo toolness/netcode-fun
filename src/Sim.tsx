@@ -51,7 +51,7 @@ export function nextSimState(s: Sim): Sim {
 
 export const PlayerViz: React.FC<{player: Player, sim: Sim}> = ({player, sim}) => {
   return (
-    <div className={`Player-viz Player-number-${player.number}`} style={{
+    <div className={`Player-viz Player-number-${player.number}`} title={`Player ${player.number}`} style={{
       width: `${player.size.x / sim.size.x * 100}%`,
       top: `${player.position.y / sim.size.y * 100}%`,
       left: `${player.position.x / sim.size.x * 100}%`,
