@@ -1,4 +1,10 @@
+This is an attempt to explore multiplayer game networking using a simulation.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Multiplayer networking resources
+
+See [MFatihMAR/Awesome-Game-Networking](https://github.com/MFatihMAR/Awesome-Game-Networking).
 
 ## Available Scripts
 
