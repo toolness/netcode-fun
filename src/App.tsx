@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './App.css';
 import { Player, Sim, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
+import { InputManager, Button, InputContext, buttonName } from './InputManager';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -26,22 +27,39 @@ const INITIAL_SIM: Sim = {
   time: 0
 };
 
+const InputDisplay: React.FC<{button: Button}> = ({button}) => {
+  const isDown = useContext(InputContext)[button];
+  const visibility = isDown ? 'visible' : 'hidden';
+
+  return <kbd style={{visibility}}>{buttonName(button)}</kbd>
+};
+
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <div className="App-viewports">
-        <div>
-          <h2>Player 1</h2>
-        </div>
-        <div>
-          <h2>Server</h2>
-          <SimViz sim={INITIAL_SIM} />
-        </div>
-        <div>
-          <h2>Player 2</h2>
+    <InputManager>
+      <div className="App">
+        <div className="App-viewports">
+          <div>
+            <h2>Player 1</h2>
+            <InputDisplay button="w"/>
+            <InputDisplay button="a"/>
+            <InputDisplay button="s"/>
+            <InputDisplay button="d"/>
+          </div>
+          <div>
+            <h2>Server</h2>
+            <SimViz sim={INITIAL_SIM} />
+          </div>
+          <div>
+            <h2>Player 2</h2>
+            <InputDisplay button="arrowup"/>
+            <InputDisplay button="arrowleft"/>
+            <InputDisplay button="arrowdown"/>
+            <InputDisplay button="arrowright"/>
+          </div>
         </div>
       </div>
-    </div>
+    </InputManager>
   );
 }
 
