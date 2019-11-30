@@ -28,14 +28,25 @@ const INITIAL_SIM: Sim = {
   time: 0
 };
 
-const App: React.FC = () => {
-  const [sim, setSim] = useState(INITIAL_SIM);
+function useRequestAnimationFrame(fn: () => void) {
   const animRef = useRef(-1);
 
   const animate = () => {
-    setSim(sim => nextSimState(sim));
+    fn();
     animRef.current = requestAnimationFrame(animate);
   };
+
+  useEffect(() => {
+    animRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+    };
+  });
+}
+
+const App: React.FC = () => {
+  const [sim, setSim] = useState(INITIAL_SIM);
 
   const movePlayer = (playerIndex: number, velocity: Vec2) => {
     setSim(sim => applySimCommand(sim, {
@@ -46,12 +57,8 @@ const App: React.FC = () => {
     }));
   };
 
-  useEffect(() => {
-    animRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(animRef.current);
-    };
+  useRequestAnimationFrame(() => {
+    setSim(sim => nextSimState(sim));
   });
 
   return (
