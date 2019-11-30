@@ -29,9 +29,9 @@ const INITIAL_SIM: Sim = {
 
 const InputDisplay: React.FC<{button: Button}> = ({button}) => {
   const isDown = useContext(InputContext)[button];
-  const visibility = isDown ? 'visible' : 'hidden';
+  const opacity = isDown ? 1.0 : 0.66;
 
-  return <kbd style={{visibility}}>{buttonName(button)}</kbd>
+  return <kbd style={{opacity}}>{buttonName(button)}</kbd>
 };
 
 const App: React.FC = () => {
