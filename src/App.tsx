@@ -4,7 +4,7 @@ import { Player, Sim, SimRunner, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
-import { useRequestAnimationFrame } from './useRequestAnimationFrame';
+import { useRequestAnimationFrame } from './timing';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};

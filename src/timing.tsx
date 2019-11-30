@@ -13,3 +13,14 @@ export function useRequestAnimationFrame(fn: () => void) {
     };
   }, [fn]);
 }
+
+export function useInterval(fn: () => void, ms: number) {
+  const intervalRef = useRef(-1);
+
+  useEffect(() => {
+    intervalRef.current = window.setInterval(fn, ms);
+    return () => {
+      window.clearInterval(intervalRef.current);
+    };
+  }, [fn, ms]);
+}
