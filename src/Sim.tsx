@@ -17,21 +17,22 @@ export interface Sim {
   time: number;
 }
 
-function nextPlayerState(p: Player): Player {
+export function nextPlayerState(p: Player, ticks: number): Player {
   if (vec2Equals(p.velocity, VEC2_ZERO)) {
     return p;
   }
-  return {
-    ...p,
-    position: vec2Add(p.position, p.velocity)
-  };
+  const next: Player = {...p};
+  for (let i = 0; i < ticks; i++) {
+    next.position = vec2Add(next.position, p.velocity);
+  }
+  return next;
 }
 
-export function nextSimState(s: Sim): Sim {
+export function nextSimState(s: Sim, ticks: number): Sim {
   return {
     ...s,
-    players: memoryConservingMap(s.players, nextPlayerState),
-    time: s.time + 1
+    players: memoryConservingMap(s.players, p => nextPlayerState(p, ticks)),
+    time: s.time + ticks
   };
 }
 
