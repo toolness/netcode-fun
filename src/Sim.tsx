@@ -63,6 +63,35 @@ export function applySimCommand(s: Sim, command: SimCommand): Sim {
   }
 }
 
+export class SimRunner {
+  currentState: Sim;
+  queuedCommands: SimCommand[] = [];
+
+  constructor(readonly initialState: Sim) {
+    this.currentState = initialState;
+  }
+
+  tick() {
+    const commands = this.queuedCommands;
+    let state = this.currentState;
+    commands.forEach(command => {
+      state = applySimCommand(state, command);
+    });
+    state = nextSimState(state, 1);
+    this.queuedCommands = [];
+    this.currentState = state;
+  }
+
+  setPlayerVelocity(playerIndex: number, velocity: Vec2) {
+    this.queuedCommands.push({
+      type: 'set-velocity',
+      time: this.currentState.time,
+      playerIndex,
+      velocity
+    });
+  }
+}
+
 export const PlayerViz: React.FC<{player: Player, sim: Sim}> = ({player, sim}) => {
   return (
     <div className={`Player-viz Player-number-${player.number}`} title={`Player ${player.number}`} style={{

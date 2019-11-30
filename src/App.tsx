@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import './App.css';
-import { Player, Sim, SimViz, nextSimState, applySimCommand } from './Sim';
+import { Player, Sim, SimRunner, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
@@ -46,20 +46,15 @@ function useRequestAnimationFrame(fn: () => void) {
 }
 
 const App: React.FC = () => {
-  const [sim, setSim] = useState(INITIAL_SIM);
+  const sr = useRef(new SimRunner(INITIAL_SIM)).current;
+  const [sim, setSim] = useState(sr.currentState);
 
-  const movePlayer = useCallback((playerIndex: number, velocity: Vec2) => {
-    setSim(sim => applySimCommand(sim, {
-      type: 'set-velocity',
-      time: sim.time,
-      playerIndex,
-      velocity
-    }));
-  }, []);
-
-  const movePlayer1 = useCallback((v: Vec2) => movePlayer(0, v), [movePlayer]);
-  const movePlayer2 = useCallback((v: Vec2) => movePlayer(1, v), [movePlayer]);
-  const nextTick = useCallback(() => setSim(sim => nextSimState(sim)), []);
+  const movePlayer1 = useCallback((v: Vec2) => sr.setPlayerVelocity(0, v), [sr]);
+  const movePlayer2 = useCallback((v: Vec2) => sr.setPlayerVelocity(1, v), [sr]);
+  const nextTick = useCallback(() => {
+    sr.tick();
+    setSim(sr.currentState);
+  }, [sr]);
 
   useRequestAnimationFrame(nextTick);
 
