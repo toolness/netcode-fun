@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import './App.css';
 import { Player, Sim, SimRunner, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
+import { useRequestAnimationFrame } from './useRequestAnimationFrame';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -27,23 +28,6 @@ const INITIAL_SIM: Sim = {
   size: SIM_SIZE,
   time: 0
 };
-
-function useRequestAnimationFrame(fn: () => void) {
-  const animRef = useRef(-1);
-
-  useEffect(() => {
-    const animate = () => {
-      fn();
-      animRef.current = requestAnimationFrame(animate);
-    };
-
-    animRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(animRef.current);
-    };
-  }, [fn]);
-}
 
 const App: React.FC = () => {
   const sr = useRef(new SimRunner(INITIAL_SIM)).current;
