@@ -59,9 +59,7 @@ const App: React.FC = () => {
 
   const movePlayer1 = useCallback((v: Vec2) => movePlayer(0, v), [movePlayer]);
   const movePlayer2 = useCallback((v: Vec2) => movePlayer(1, v), [movePlayer]);
-  const nextTick = useCallback(() => {
-    setSim(sim => nextSimState(sim));
-  }, []);
+  const nextTick = useCallback(() => setSim(sim => nextSimState(sim)), []);
 
   useRequestAnimationFrame(nextTick);
 
