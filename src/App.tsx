@@ -48,15 +48,17 @@ function useRequestAnimationFrame(fn: () => void) {
 const App: React.FC = () => {
   const [sim, setSim] = useState(INITIAL_SIM);
 
-  const movePlayer = (playerIndex: number, velocity: Vec2) => {
+  const movePlayer = useCallback((playerIndex: number, velocity: Vec2) => {
     setSim(sim => applySimCommand(sim, {
       type: 'set-velocity',
       time: sim.time,
       playerIndex,
       velocity
     }));
-  };
+  }, []);
 
+  const movePlayer1 = useCallback((v: Vec2) => movePlayer(0, v), [movePlayer]);
+  const movePlayer2 = useCallback((v: Vec2) => movePlayer(1, v), [movePlayer]);
   const nextTick = useCallback(() => {
     setSim(sim => nextSimState(sim));
   }, []);
@@ -69,7 +71,7 @@ const App: React.FC = () => {
         <div className="App-viewports">
           <div>
             <h2>Player 1</h2>
-            <Vec2Input up="w" down="s" left="a" right="d" onChange={v => movePlayer(0, v)} />
+            <Vec2Input up="w" down="s" left="a" right="d" onChange={movePlayer1} />
           </div>
           <div>
             <h2>Server</h2>
@@ -77,7 +79,7 @@ const App: React.FC = () => {
           </div>
           <div>
             <h2>Player 2</h2>
-            <Vec2Input up="arrowup" down="arrowdown" left="arrowleft" right="arrowright" onChange={v => movePlayer(1, v)} />
+            <Vec2Input up="arrowup" down="arrowdown" left="arrowleft" right="arrowright" onChange={movePlayer2} />
           </div>
         </div>
       </div>
