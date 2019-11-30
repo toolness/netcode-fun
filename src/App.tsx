@@ -3,7 +3,6 @@ import './App.css';
 import { Player, Sim, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
-import { InputDisplay } from './InputDisplay';
 import { Vec2Input } from './Vec2Input';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
@@ -36,11 +35,7 @@ const App: React.FC = () => {
         <div className="App-viewports">
           <div>
             <h2>Player 1</h2>
-            <InputDisplay button="w"/>
-            <InputDisplay button="a"/>
-            <InputDisplay button="s"/>
-            <InputDisplay button="d"/>
-            <Vec2Input up="w" down="s" left="a" right="d" onChange={v => console.log(v)} />
+            <Vec2Input up="w" down="s" left="a" right="d" onChange={v => console.log('p1', v)} />
           </div>
           <div>
             <h2>Server</h2>
@@ -48,10 +43,7 @@ const App: React.FC = () => {
           </div>
           <div>
             <h2>Player 2</h2>
-            <InputDisplay button="arrowup"/>
-            <InputDisplay button="arrowleft"/>
-            <InputDisplay button="arrowdown"/>
-            <InputDisplay button="arrowright"/>
+            <Vec2Input up="arrowup" down="arrowdown" left="arrowleft" right="arrowright" onChange={v => console.log('p2', v)} />
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Button, InputContext } from './InputManager';
 import { Vec2 } from './Vec2';
+import { InputDisplay } from './InputDisplay';
 
 function getAxis(positive: boolean, negative: boolean): number {
   if (positive && negative) return 0;
@@ -47,5 +48,14 @@ export const Vec2Input: React.FC<{
     }
   }, [xVel, prevXVel, yVel, prevYVel, onChange]);
 
-  return null;
+  return (
+    <div>
+      <div><InputDisplay button={props.up} /></div>
+      <div>
+        <InputDisplay button={props.left} />
+        <InputDisplay button={props.down} />
+        <InputDisplay button={props.right} />
+      </div>
+    </div>
+  );
 };
