@@ -4,6 +4,7 @@ import { Player, Sim, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
 import { InputDisplay } from './InputDisplay';
+import { Vec2Input } from './Vec2Input';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -39,6 +40,7 @@ const App: React.FC = () => {
             <InputDisplay button="a"/>
             <InputDisplay button="s"/>
             <InputDisplay button="d"/>
+            <Vec2Input up="w" down="s" left="a" right="d" onChange={v => console.log(v)} />
           </div>
           <div>
             <h2>Server</h2>
