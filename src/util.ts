@@ -13,6 +13,15 @@ export function memoryConservingMap<T>(arr: T[], mapFn: (item: T) => T): T[] {
   return changed ? mappedArr : arr;
 }
 
+export function replaceArrayEntry<T>(arr: T[], index: number, entry: T): T[] {
+  if (index < 0 || index >= arr.length) {
+    throw new Error(`Array index ${index} is out of bounds`);
+  }
+  const result = arr.slice();
+  result.splice(index, 1, entry);
+  return result;
+}
+
 export type Jsonable = string|number|boolean|null|Jsonable[]|{[property: string]: Jsonable};
 
 export function clone<T extends Jsonable>(obj: T): T {

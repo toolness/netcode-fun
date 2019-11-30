@@ -2,7 +2,16 @@ import React from 'react';
 import './Sim.css';
 import { Vec2, vec2Equals, VEC2_ZERO, vec2Add } from './Vec2';
 import { AspectRatio } from './AspectRatio';
-import { memoryConservingMap } from './util';
+import { memoryConservingMap, replaceArrayEntry } from './util';
+
+export type SetPlayerVelocityCommand = {
+  type: 'set-velocity';
+  time: number;
+  playerIndex: number;
+  velocity: Vec2;
+};
+
+export type SimCommand = SetPlayerVelocityCommand;
 
 export interface Player {
   number: number;
@@ -34,6 +43,22 @@ export function nextSimState(s: Sim, ticks: number): Sim {
     players: memoryConservingMap(s.players, p => nextPlayerState(p, ticks)),
     time: s.time + ticks
   };
+}
+
+export function applySimCommand(s: Sim, command: SimCommand): Sim {
+  if (command.time !== s.time) {
+    throw new Error(`We can only apply commands made at the same time as the sim right now`);
+  }
+  switch (command.type) {
+    case 'set-velocity':
+      return {
+        ...s,
+        players: replaceArrayEntry(s.players, command.playerIndex, {
+          ...s.players[command.playerIndex],
+          velocity: command.velocity
+        })
+      };
+  }
 }
 
 export const PlayerViz: React.FC<{player: Player, sim: Sim}> = ({player, sim}) => {
