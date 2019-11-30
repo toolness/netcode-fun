@@ -2,7 +2,7 @@ import React from 'react';
 import './Sim.css';
 import { Vec2, vec2Equals, VEC2_ZERO, vec2Add } from './Vec2';
 import { AspectRatio } from './AspectRatio';
-import { memoryConservingMap, replaceArrayEntry } from './util';
+import { memoryConservingMap, replaceArrayEntry, clamp } from './util';
 
 export type SetPlayerVelocityCommand = {
   type: 'set-velocity';
@@ -26,7 +26,7 @@ export interface Sim {
   time: number;
 }
 
-export function nextPlayerState(p: Player, ticks: number): Player {
+export function nextPlayerState(p: Player, sim: Sim, ticks: number): Player {
   if (vec2Equals(p.velocity, VEC2_ZERO)) {
     return p;
   }
@@ -34,13 +34,15 @@ export function nextPlayerState(p: Player, ticks: number): Player {
   for (let i = 0; i < ticks; i++) {
     next.position = vec2Add(next.position, p.velocity);
   }
+  next.position.x = clamp(next.position.x, 0, sim.size.x - p.size.x);
+  next.position.y = clamp(next.position.y, 0, sim.size.y - p.size.y);
   return next;
 }
 
 export function nextSimState(s: Sim, ticks: number = 1): Sim {
   return {
     ...s,
-    players: memoryConservingMap(s.players, p => nextPlayerState(p, ticks)),
+    players: memoryConservingMap(s.players, p => nextPlayerState(p, s, ticks)),
     time: s.time + ticks
   };
 }

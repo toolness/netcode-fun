@@ -15,14 +15,22 @@ const SIM: Sim = {
 
 describe("nextPlayerState()", () => {
   it("returns player when velocity is zero", () => {
-    expect(nextPlayerState(PLAYER, 50)).toBe(PLAYER);
+    expect(nextPlayerState(PLAYER, SIM, 50)).toBe(PLAYER);
   });
 
   it("updates velocity", () => {
     const p: Player = {...PLAYER, velocity: {x: 0.7683032686776416, y: 0}};
-    expect(nextPlayerState(p, 59).position).toEqual({
+    expect(nextPlayerState(p, SIM, 59).position).toEqual({
       x: 45.32989285198085,
       y: 0
+    });
+  });
+
+  it("clamps position", () => {
+    const p: Player = {...PLAYER, velocity: {x: 50, y: 40}};
+    expect(nextPlayerState(p, SIM, 100).position).toEqual({
+      x: 90,
+      y: 90
     });
   });
 });

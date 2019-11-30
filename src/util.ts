@@ -27,3 +27,13 @@ export type Jsonable = string|number|boolean|null|Jsonable[]|{[property: string]
 export function clone<T extends Jsonable>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
+
+export function clamp(value: number, min: number, max: number): number {
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
+}
