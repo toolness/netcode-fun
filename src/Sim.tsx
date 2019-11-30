@@ -37,7 +37,7 @@ export function nextPlayerState(p: Player, ticks: number): Player {
   return next;
 }
 
-export function nextSimState(s: Sim, ticks: number): Sim {
+export function nextSimState(s: Sim, ticks: number = 1): Sim {
   return {
     ...s,
     players: memoryConservingMap(s.players, p => nextPlayerState(p, ticks)),
