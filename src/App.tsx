@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './App.css';
 import { Player, Sim, SimViz, nextSimState, applySimCommand } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
@@ -31,18 +31,18 @@ const INITIAL_SIM: Sim = {
 function useRequestAnimationFrame(fn: () => void) {
   const animRef = useRef(-1);
 
-  const animate = () => {
-    fn();
-    animRef.current = requestAnimationFrame(animate);
-  };
-
   useEffect(() => {
+    const animate = () => {
+      fn();
+      animRef.current = requestAnimationFrame(animate);
+    };
+
     animRef.current = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(animRef.current);
     };
-  });
+  }, [fn]);
 }
 
 const App: React.FC = () => {
@@ -57,9 +57,11 @@ const App: React.FC = () => {
     }));
   };
 
-  useRequestAnimationFrame(() => {
+  const nextTick = useCallback(() => {
     setSim(sim => nextSimState(sim));
-  });
+  }, []);
+
+  useRequestAnimationFrame(nextTick);
 
   return (
     <InputManager>
