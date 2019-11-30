@@ -1,4 +1,4 @@
-import { memoryConservingMap } from "./util";
+import { memoryConservingMap, clone } from "./util";
 
 describe("memoryConservingMap()", () => {
   it("returns identical array when array is unchanged", () => {
@@ -14,5 +14,14 @@ describe("memoryConservingMap()", () => {
     expect(mapped).not.toBe(arr);
     expect(arr).toEqual([1, 2, 3]);
     expect(mapped).toEqual([2, 4, 6]);
+  });
+});
+
+describe("clone()", () => {
+  it("preserves floats", () => {
+    for (let i = 0; i < 1000; i++) {
+      const num = Math.random();
+      expect(clone(num)).toBe(num);
+    }
   });
 });

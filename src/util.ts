@@ -12,3 +12,9 @@ export function memoryConservingMap<T>(arr: T[], mapFn: (item: T) => T): T[] {
 
   return changed ? mappedArr : arr;
 }
+
+export type Jsonable = string|number|boolean|null|Jsonable[]|{[property: string]: Jsonable};
+
+export function clone<T extends Jsonable>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
