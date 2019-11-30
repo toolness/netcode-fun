@@ -20,6 +20,16 @@ function usePrevious<T>(value: T): T|undefined {
   return ref.current;
 }
 
+function useAxis(positiveBtn: Button, negativeBtn: Button): [number, number|undefined] {
+  const {[positiveBtn]: positive, [negativeBtn]: negative} = useContext(InputContext);
+  const [value, setValue] = useState(getAxis(!!positive, !!negative));
+  const prevValue = usePrevious(value);
+
+  useEffect(() => setValue(getAxis(!!positive, !!negative)), [positive, negative]);
+
+  return [value, prevValue];
+}
+
 export const Vec2Input: React.FC<{
   up: Button,
   down: Button,
@@ -28,20 +38,14 @@ export const Vec2Input: React.FC<{
   onChange: (velocity: Vec2) => void
 }> = (props) => {
   const { onChange } = props;
-  const {
-    [props.up]: up,
-    [props.down]: down,
-  } = useContext(InputContext);
+  const [xVel, prevXVel] = useAxis(props.right, props.left);
+  const [yVel, prevYVel] = useAxis(props.down, props.up);
 
-  const [yVel, setYVel] = useState(getAxis(!!down, !!up));
-  const prevYVel = usePrevious(yVel);
-
-  useEffect(() => setYVel(getAxis(!!down, !!up)), [up, down]);
   useEffect(() => {
-    if (yVel !== prevYVel) {
-      onChange({x: 0.0, y: yVel});
+    if (yVel !== prevYVel || xVel !== prevXVel) {
+      onChange({x: xVel, y: yVel});
     }
-  }, [yVel, prevYVel, onChange]);
+  }, [xVel, prevXVel, yVel, prevYVel, onChange]);
 
-  return null;  
+  return null;
 };
