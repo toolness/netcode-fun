@@ -30,7 +30,7 @@ const INITIAL_SIM: Sim = {
 };
 
 const App: React.FC = () => {
-  const sr = useRef(new SimRunner(INITIAL_SIM)).current;
+  const sr = useRef(new SimRunner(INITIAL_SIM, {inputTickDelay: 3})).current;
   const [sim, setSim] = useState(sr.currentState);
 
   const movePlayer1 = useCallback((v: Vec2) => sr.setPlayerVelocity(0, v), [sr]);

@@ -63,29 +63,46 @@ export function applySimCommand(s: Sim, command: SimCommand): Sim {
   }
 }
 
+export type SimRunnerOptions = {
+  inputTickDelay: number
+};
+
+const DEFAULT_SIM_RUNNER_OPTIONS: SimRunnerOptions = {
+  inputTickDelay: 0
+};
+
 export class SimRunner {
   currentState: Sim;
+  options: SimRunnerOptions;
   queuedCommands: SimCommand[] = [];
 
-  constructor(readonly initialState: Sim) {
+  constructor(readonly initialState: Sim, options?: Partial<SimRunnerOptions>) {
+    this.options = {
+      ...DEFAULT_SIM_RUNNER_OPTIONS,
+      ...options
+    };
     this.currentState = initialState;
   }
 
   tick() {
     const commands = this.queuedCommands;
+    this.queuedCommands = [];
     let state = this.currentState;
     commands.forEach(command => {
-      state = applySimCommand(state, command);
+      if (command.time === state.time) {
+        state = applySimCommand(state, command);
+      } else {
+        this.queuedCommands.push(command);
+      }
     });
     state = nextSimState(state, 1);
-    this.queuedCommands = [];
     this.currentState = state;
   }
 
   setPlayerVelocity(playerIndex: number, velocity: Vec2) {
     this.queuedCommands.push({
       type: 'set-velocity',
-      time: this.currentState.time,
+      time: this.currentState.time + this.options.inputTickDelay,
       playerIndex,
       velocity
     });
