@@ -59,10 +59,10 @@ const IntegerInput: React.FC<{
   min: number,
   max: number
 }> = (props) => {
-  return <p>
+  return <>
     <label htmlFor={props.id}>{props.label}:</label>{' '}
     <input type="number" value={props.value} min={props.min} max={props.max} onChange={(e) => props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value))} onKeyDown={focusPageOnEnterOrESC} />
-  </p>
+  </>
 };
 
 const App: React.FC = () => {
@@ -73,6 +73,7 @@ const App: React.FC = () => {
   const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
   const [sim2, setSim2] = useState(sr.runners[1].currentState);
+  const fpsInterval = 1000 / simFPS;
 
   const movePlayer1 = useCallback((v: Vec2) => sr.setPlayerVelocity(0, vec2Scale(v, SPEED_SCALE * playerSpeed)), [sr, playerSpeed]);
   const movePlayer2 = useCallback((v: Vec2) => sr.setPlayerVelocity(1, vec2Scale(v, SPEED_SCALE * playerSpeed)), [sr, playerSpeed]);
@@ -84,7 +85,7 @@ const App: React.FC = () => {
 
   useEffect(() => sr.setInputTickDelay(inputTickDelay), [inputTickDelay, sr]);
   useEffect(() => sr.setNetworkTickDelay(networkTickDelay), [networkTickDelay, sr]);
-  useInterval(nextTick, 1000 / simFPS);
+  useInterval(nextTick, 1000 / fpsInterval);
 
   return (
     <InputManager>
@@ -97,10 +98,21 @@ const App: React.FC = () => {
           </div>
           <div>
             <h2>Configuration</h2>
-            <IntegerInput id="fps" label="Simulation FPS" min={MIN_FPS} max={MAX_FPS} value={simFPS} onChange={setSimFPS} />
-            <IntegerInput id="itd" label="Input frame delay" min={0} max={100} value={inputTickDelay} onChange={setInputTickDelay} />
-            <IntegerInput id="ntd" label="Network frame delay" min={0} max={100} value={networkTickDelay} onChange={setNetworkTickDelay} />
-            <IntegerInput id="speed" label="Player speed" min={MIN_SPEED} max={MAX_SPEED} value={playerSpeed} onChange={setPlayerSpeed} />
+            <p>
+              <IntegerInput id="fps" label="Simulation FPS" min={MIN_FPS} max={MAX_FPS} value={simFPS} onChange={setSimFPS} />
+              <aside>{fpsInterval.toFixed(0)}ms between frames</aside>
+            </p>
+            <p>
+              <IntegerInput id="itd" label="Input frame delay" min={0} max={100} value={inputTickDelay} onChange={setInputTickDelay} />
+              <aside>{(fpsInterval * inputTickDelay).toFixed(0)}ms before input affects simulation</aside>
+            </p>
+            <p>
+              <IntegerInput id="ntd" label="Network frame delay" min={0} max={100} value={networkTickDelay} onChange={setNetworkTickDelay} />
+              <aside>{(fpsInterval * networkTickDelay).toFixed(0)}ms of simulated network lag</aside>
+            </p>
+            <p>
+              <IntegerInput id="speed" label="Player speed" min={MIN_SPEED} max={MAX_SPEED} value={playerSpeed} onChange={setPlayerSpeed} />
+            </p>
           </div>
           <div>
             <h2>Player 2</h2>

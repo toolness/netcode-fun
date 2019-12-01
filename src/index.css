@@ -44,3 +44,8 @@ input[type="number"] {
 input:focus {
   border: 1px solid #09d3ac;
 }
+
+aside {
+  color: lightgray;
+  font-size: 0.8rem;
+}
