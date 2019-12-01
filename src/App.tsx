@@ -85,7 +85,7 @@ const App: React.FC = () => {
 
   useEffect(() => sr.setInputTickDelay(inputTickDelay), [inputTickDelay, sr]);
   useEffect(() => sr.setNetworkTickDelay(networkTickDelay), [networkTickDelay, sr]);
-  useInterval(nextTick, 1000 / fpsInterval);
+  useInterval(nextTick, fpsInterval);
 
   return (
     <InputManager>
