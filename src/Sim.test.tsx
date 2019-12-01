@@ -58,19 +58,27 @@ describe("applySimCommand()", () => {
 
 describe("SimRunner", () => {
   it("applies input instantly", () => {
-    const sr = new  SimRunner(SIM);
+    const sr = new SimRunner(SIM);
     sr.setPlayerVelocity(0, {x: 1, y: 1});
     sr.tick();
     expect(sr.currentState.players[0].velocity).toEqual({x: 1, y: 1});
   });
 
   it("delays input", () => {
-    const sr = new  SimRunner(SIM, {inputTickDelay: 1});
+    const sr = new SimRunner(SIM, {inputTickDelay: 1});
     sr.setPlayerVelocity(0, {x: 1, y: 1});
     sr.tick();
     expect(sr.currentState.players[0].velocity).toEqual({x: 0, y: 0});
     sr.tick();
     expect(sr.currentState.players[0].velocity).toEqual({x: 1, y: 1});
+  });
+
+  it("expunges old history", () => {
+    const sr = new SimRunner(SIM, {historyLength: 2});
+    for (let i = 0; i < 20; i++) {
+      sr.tick();
+    }
+    expect(sr.history.length).toBe(2);
   });
 
   it("rolls back and applies commands that happened in the past", () => {
