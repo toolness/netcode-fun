@@ -97,6 +97,14 @@ export class MultiSimRunner {
     }
   }
 
+  setInputTickDelay(value: number) {
+    this.runners.forEach(r => { r.options.inputTickDelay = value; });
+  }
+
+  setNetworkTickDelay(value: number) {
+    this.options.networkTickDelay = value;
+  }
+
   tick() {
     this.inTransitCommands = this.inTransitCommands.filter(itc => {
       if (itc.ticksLeft === 0) {

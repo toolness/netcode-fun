@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import './App.css';
 import { Player, Sim, MultiSimRunner, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
@@ -41,9 +41,23 @@ function clampOrDefaultInt(value: string, min: number, max: number, defaultValue
 const MIN_FPS = 1;
 const MAX_FPS = 60;
 
+const IntegerInput: React.FC<{
+  id: string,
+  label: string,
+  value: number,
+  onChange: (value: number) => void,
+  min: number,
+  max: number
+}> = (props) => {
+  return <p>
+    <label htmlFor={props.id}>{props.label}:</label>{' '}
+    <input type="number" value={props.value} min={props.min} max={props.max} onChange={(e) => props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value))} />
+  </p>
+};
+
 const App: React.FC = () => {
-  const inputTickDelay = 3;
-  const networkTickDelay = 5;
+  const [inputTickDelay, setInputTickDelay] = useState(3);
+  const [networkTickDelay, setNetworkTickDelay] = useState(2);
   const [simFPS, setSimFPS] = useState(MAX_FPS);
   const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
@@ -57,6 +71,8 @@ const App: React.FC = () => {
     setSim2(sr.runners[1].currentState);
   }, [sr]);
 
+  useEffect(() => sr.setInputTickDelay(inputTickDelay), [inputTickDelay, sr]);
+  useEffect(() => sr.setNetworkTickDelay(networkTickDelay), [networkTickDelay, sr]);
   useInterval(nextTick, 1000 / simFPS);
 
   return (
@@ -70,9 +86,9 @@ const App: React.FC = () => {
           </div>
           <div>
             <h2>Configuration</h2>
-            <p><label htmlFor="fps">Simulation FPS:</label> <input id="fps" type="number" value={simFPS} min={MIN_FPS} max={MAX_FPS} onChange={(e) => setSimFPS(clampOrDefaultInt(e.target.value, MIN_FPS, MAX_FPS, simFPS))} /></p>
-            <p>Input frame delay: {inputTickDelay}</p>
-            <p>Network frame delay: {networkTickDelay}</p>
+            <IntegerInput id="fps" label="Simulation FPS" min={MIN_FPS} max={MAX_FPS} value={simFPS} onChange={setSimFPS} />
+            <IntegerInput id="itd" label="Input frame delay" min={0} max={100} value={inputTickDelay} onChange={setInputTickDelay} />
+            <IntegerInput id="ntd" label="Network frame delay" min={0} max={100} value={networkTickDelay} onChange={setNetworkTickDelay} />
           </div>
           <div>
             <h2>Player 2</h2>
