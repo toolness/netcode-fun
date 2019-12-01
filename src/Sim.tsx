@@ -68,8 +68,54 @@ export type SimRunnerOptions = {
 };
 
 const DEFAULT_SIM_RUNNER_OPTIONS: SimRunnerOptions = {
-  inputTickDelay: 0
+  inputTickDelay: 0,
 };
+
+export type MultiSimRunnerOptions = SimRunnerOptions & {
+  networkTickDelay: number
+};
+
+const DEFAULT_MULTI_SIM_RUNNER_OPTIONS: MultiSimRunnerOptions = {
+  ...DEFAULT_SIM_RUNNER_OPTIONS,
+  networkTickDelay: 1
+};
+
+export class MultiSimRunner {
+  runners: SimRunner[] = [];
+  options: MultiSimRunnerOptions;
+  inTransitCommands: {ticksLeft: number, command: SimCommand}[] = [];
+
+  constructor(initialState: Sim, options?: Partial<MultiSimRunnerOptions>) {
+    this.options = {
+      ...DEFAULT_MULTI_SIM_RUNNER_OPTIONS,
+      ...options
+    };
+    for (let i = 0; i < initialState.players.length; i++) {
+      this.runners.push(new SimRunner(initialState, options));
+    }
+  }
+
+  tick() {
+    this.inTransitCommands = this.inTransitCommands.filter(itc => {
+      if (itc.ticksLeft === 0) {
+        this.runners.forEach((runner, playerIndex) => {
+          if (playerIndex !== itc.command.playerIndex) {
+            runner.queuedCommands.push(itc.command);
+          }
+        });
+        return false;
+      }
+      itc.ticksLeft--;
+      return true;
+    });
+    this.runners.forEach(r => r.tick());
+  }
+
+  setPlayerVelocity(playerIndex: number, velocity: Vec2) {
+    const command = this.runners[playerIndex].setPlayerVelocity(playerIndex, velocity);
+    this.inTransitCommands.push({ticksLeft: this.options.networkTickDelay, command});
+  }
+}
 
 export class SimRunner {
   currentState: Sim;
@@ -99,13 +145,15 @@ export class SimRunner {
     this.currentState = state;
   }
 
-  setPlayerVelocity(playerIndex: number, velocity: Vec2) {
-    this.queuedCommands.push({
+  setPlayerVelocity(playerIndex: number, velocity: Vec2): SimCommand {
+    const cmd: SimCommand = {
       type: 'set-velocity',
       time: this.currentState.time + this.options.inputTickDelay,
       playerIndex,
       velocity
-    });
+    };
+    this.queuedCommands.push(cmd);
+    return cmd;
   }
 }
 
