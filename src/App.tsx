@@ -114,7 +114,7 @@ const App: React.FC = () => {
               <IntegerInput id="speed" label="Player speed" min={MIN_SPEED} max={MAX_SPEED} value={playerSpeed} onChange={setPlayerSpeed} />
             </p>
             <p className="App-desc">
-              This is a simple exploration of delay and rollback-based netcode in a simulated network environment. For more details, please see the <a href="https://github.com/toolness/networked-game-simulation" target="_blank" rel="noopener noreferrer">GitHub README</a>.
+              This is a simple exploration of delay and rollback-based netcode in a simulated network environment. For more details, please see the <a href="https://github.com/toolness/netcode-fun" target="_blank" rel="noopener noreferrer">GitHub README</a>.
             </p>
           </div>
           <div>
