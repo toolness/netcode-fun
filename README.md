@@ -1,10 +1,10 @@
-This is an attempt to explore multiplayer game networking using a simulation.
+This is a simple exploration of delay and rollback-based netcode in a simulated network environment.
+
+Specifically, it uses techniques outlined in Ricky Pusch's [Explaining how fighting games use delay-based and rollback netcode](https://arstechnica.com/gaming/2019/10/explaining-how-fighting-games-use-delay-based-and-rollback-netcode/).
+
+Further resources for multiplayer networking can be found at [MFatihMAR/Awesome-Game-Networking](https://github.com/MFatihMAR/Awesome-Game-Networking).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Multiplayer networking resources
-
-See [MFatihMAR/Awesome-Game-Networking](https://github.com/MFatihMAR/Awesome-Game-Networking).
 
 ## Available Scripts
 
@@ -32,16 +32,6 @@ The build is minified and the filenames include the hashes.<br />
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
 ## Learn More
 
