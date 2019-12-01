@@ -34,5 +34,13 @@ kbd {
 
 input[type="number"] {
   width: 3em;
-  border: none;
+  border: 1px dashed gray;
+  background: transparent;
+  color: white;
+  font-family: inherit;
+  padding: 4px;
+}
+
+input:focus {
+  border: 1px solid #09d3ac;
 }
