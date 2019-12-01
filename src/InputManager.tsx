@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+const USE_CAPTURE = true;
+
 export type Button = 'w'|'a'|'s'|'d'|'arrowup'|'arrowdown'|'arrowleft'|'arrowright';
 
 export type ButtonState = {
@@ -13,6 +15,8 @@ export const InputManager: React.FC = props => {
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
+      if (document.activeElement && document.activeElement.nodeName === 'INPUT') return;
+
       const isDown = e.type === 'keydown';
 
       setState(prevState => ({
@@ -21,12 +25,12 @@ export const InputManager: React.FC = props => {
       }));
     };
 
-    window.addEventListener('keydown', listener, true);
-    window.addEventListener('keyup', listener, true);
+    window.addEventListener('keydown', listener, USE_CAPTURE);
+    window.addEventListener('keyup', listener, USE_CAPTURE);
 
     return () => {
-      window.removeEventListener('keydown', listener, true);
-      window.removeEventListener('keyup', listener, true);
+      window.removeEventListener('keydown', listener, USE_CAPTURE);
+      window.removeEventListener('keyup', listener, USE_CAPTURE);
     };
   }, []);
 
