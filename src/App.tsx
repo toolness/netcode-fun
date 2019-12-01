@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import './App.css';
 import { Player, Sim, MultiSimRunner, SimViz } from './Sim';
-import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
+import { Vec2, VEC2_ZERO, vec2Subtract, vec2Scale } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
 import { useInterval } from './timing';
@@ -40,6 +40,9 @@ function clampOrDefaultInt(value: string, min: number, max: number, defaultValue
 
 const MIN_FPS = 1;
 const MAX_FPS = 60;
+const MIN_SPEED = 1;
+const MAX_SPEED = 100;
+const SPEED_SCALE = 0.1;
 
 const IntegerInput: React.FC<{
   id: string,
@@ -56,6 +59,7 @@ const IntegerInput: React.FC<{
 };
 
 const App: React.FC = () => {
+  const [playerSpeed, setPlayerSpeed] = useState(10);
   const [inputTickDelay, setInputTickDelay] = useState(3);
   const [networkTickDelay, setNetworkTickDelay] = useState(2);
   const [simFPS, setSimFPS] = useState(MAX_FPS);
@@ -63,8 +67,8 @@ const App: React.FC = () => {
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
   const [sim2, setSim2] = useState(sr.runners[1].currentState);
 
-  const movePlayer1 = useCallback((v: Vec2) => sr.setPlayerVelocity(0, v), [sr]);
-  const movePlayer2 = useCallback((v: Vec2) => sr.setPlayerVelocity(1, v), [sr]);
+  const movePlayer1 = useCallback((v: Vec2) => sr.setPlayerVelocity(0, vec2Scale(v, SPEED_SCALE * playerSpeed)), [sr, playerSpeed]);
+  const movePlayer2 = useCallback((v: Vec2) => sr.setPlayerVelocity(1, vec2Scale(v, SPEED_SCALE * playerSpeed)), [sr, playerSpeed]);
   const nextTick = useCallback(() => {
     sr.tick();
     setSim1(sr.runners[0].currentState);
@@ -89,6 +93,7 @@ const App: React.FC = () => {
             <IntegerInput id="fps" label="Simulation FPS" min={MIN_FPS} max={MAX_FPS} value={simFPS} onChange={setSimFPS} />
             <IntegerInput id="itd" label="Input frame delay" min={0} max={100} value={inputTickDelay} onChange={setInputTickDelay} />
             <IntegerInput id="ntd" label="Network frame delay" min={0} max={100} value={networkTickDelay} onChange={setNetworkTickDelay} />
+            <IntegerInput id="speed" label="Player speed" min={MIN_SPEED} max={MAX_SPEED} value={playerSpeed} onChange={setPlayerSpeed} />
           </div>
           <div>
             <h2>Player 2</h2>
