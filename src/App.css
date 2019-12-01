@@ -15,3 +15,9 @@
 .App-viewports > div {
   width: 33vw;
 }
+
+.App-desc {
+  display: block;
+  color: lightgray;
+  font-size: 0.8rem;
+}

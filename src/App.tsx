@@ -100,18 +100,21 @@ const App: React.FC = () => {
             <h2>Configuration</h2>
             <p>
               <IntegerInput id="fps" label="Simulation FPS" min={MIN_FPS} max={MAX_FPS} value={simFPS} onChange={setSimFPS} />
-              <aside>{fpsInterval.toFixed(0)}ms between frames</aside>
+              <span className="App-desc">{fpsInterval.toFixed(0)}ms between frames</span>
             </p>
             <p>
               <IntegerInput id="itd" label="Input frame delay" min={0} max={100} value={inputTickDelay} onChange={setInputTickDelay} />
-              <aside>{(fpsInterval * inputTickDelay).toFixed(0)}ms before input affects simulation</aside>
+              <span className="App-desc">{(fpsInterval * inputTickDelay).toFixed(0)}ms before input affects simulation</span>
             </p>
             <p>
               <IntegerInput id="ntd" label="Network frame delay" min={0} max={100} value={networkTickDelay} onChange={setNetworkTickDelay} />
-              <aside>{(fpsInterval * networkTickDelay).toFixed(0)}ms of simulated network lag</aside>
+              <span className="App-desc">{(fpsInterval * networkTickDelay).toFixed(0)}ms of simulated network lag</span>
             </p>
             <p>
               <IntegerInput id="speed" label="Player speed" min={MIN_SPEED} max={MAX_SPEED} value={playerSpeed} onChange={setPlayerSpeed} />
+            </p>
+            <p className="App-desc">
+              This is a simple exploration of delay and rollback-based netcode in a simulated network environment. For more details, please see the <a href="https://github.com/toolness/networked-game-simulation" target="_blank" rel="noopener noreferrer">GitHub README</a>.
             </p>
           </div>
           <div>
