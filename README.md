@@ -1,4 +1,4 @@
-This is a simple exploration of delay and rollback-based netcode in a simulated network environment.
+This is an exploration of delay and rollback-based netcode in a simulated network environment.
 
 Specifically, it uses techniques outlined in Ricky Pusch's [Explaining how fighting games use delay-based and rollback netcode](https://arstechnica.com/gaming/2019/10/explaining-how-fighting-games-use-delay-based-and-rollback-netcode/).
 
