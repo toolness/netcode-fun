@@ -1,4 +1,4 @@
-import { Player, nextPlayerState, Sim, nextSimState, applySimCommand } from "./Sim";
+import { Player, nextPlayerState, Sim, nextSimState, applySimCommand, SimRunner } from "./Sim";
 
 const PLAYER: Player = {
   number: 1,
@@ -53,5 +53,23 @@ describe("applySimCommand()", () => {
       playerIndex: 0,
       velocity: {x: 5, y: 0}
     }).players[0].velocity).toEqual({x: 5, y: 0});
+  });
+});
+
+describe("SimRunner", () => {
+  it("applies input instantly", () => {
+    const sr = new  SimRunner(SIM);
+    sr.setPlayerVelocity(0, {x: 1, y: 1});
+    sr.tick();
+    expect(sr.currentState.players[0].velocity).toEqual({x: 1, y: 1});
+  });
+
+  it("delays input", () => {
+    const sr = new  SimRunner(SIM, {inputTickDelay: 1});
+    sr.setPlayerVelocity(0, {x: 1, y: 1});
+    sr.tick();
+    expect(sr.currentState.players[0].velocity).toEqual({x: 0, y: 0});
+    sr.tick();
+    expect(sr.currentState.players[0].velocity).toEqual({x: 1, y: 1});
   });
 });
