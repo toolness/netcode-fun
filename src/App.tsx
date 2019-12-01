@@ -44,6 +44,13 @@ const MIN_SPEED = 1;
 const MAX_SPEED = 100;
 const SPEED_SCALE = 0.1;
 
+function focusPageOnEnterOrESC(e: React.KeyboardEvent) {
+  if (e.keyCode === 13 || e.keyCode === 27) {
+    e.preventDefault();
+    document.documentElement.focus();
+  }
+}
+
 const IntegerInput: React.FC<{
   id: string,
   label: string,
@@ -54,7 +61,7 @@ const IntegerInput: React.FC<{
 }> = (props) => {
   return <p>
     <label htmlFor={props.id}>{props.label}:</label>{' '}
-    <input type="number" value={props.value} min={props.min} max={props.max} onChange={(e) => props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value))} />
+    <input type="number" value={props.value} min={props.min} max={props.max} onChange={(e) => props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value))} onKeyDown={focusPageOnEnterOrESC} />
   </p>
 };
 
