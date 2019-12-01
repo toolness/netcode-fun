@@ -4,7 +4,7 @@ import { Player, Sim, MultiSimRunner, SimViz } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
-import { useRequestAnimationFrame } from './timing';
+import { useInterval } from './timing';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -32,6 +32,7 @@ const INITIAL_SIM: Sim = {
 const App: React.FC = () => {
   const inputTickDelay = 3;
   const networkTickDelay = 5;
+  const simFPS = 60;
   const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
   const [sim2, setSim2] = useState(sr.runners[1].currentState);
@@ -44,7 +45,7 @@ const App: React.FC = () => {
     setSim2(sr.runners[1].currentState);
   }, [sr]);
 
-  useRequestAnimationFrame(nextTick);
+  useInterval(nextTick, 1000 / simFPS);
 
   return (
     <InputManager>
@@ -57,6 +58,7 @@ const App: React.FC = () => {
           </div>
           <div>
             <h2>Configuration</h2>
+            <p>Simulation FPS: {simFPS}</p>
             <p>Input frame delay: {inputTickDelay}</p>
             <p>Network frame delay: {networkTickDelay}</p>
           </div>
