@@ -31,7 +31,7 @@ const INITIAL_SIM: Sim = {
 
 const App: React.FC = () => {
   const inputTickDelay = 3;
-  const networkTickDelay = 2;
+  const networkTickDelay = 5;
   const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
   const [sim2, setSim2] = useState(sr.runners[1].currentState);

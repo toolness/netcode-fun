@@ -37,3 +37,18 @@ export function clamp(value: number, min: number, max: number): number {
   }
   return value;
 }
+
+export function partitionArray<T>(arr: T[], testFn: (item: T) => boolean): [T[], T[]] {
+  const trueItems: T[] = [];
+  const falseItems: T[] = [];
+
+  arr.forEach(item => {
+    if (testFn(item)) {
+      trueItems.push(item);
+    } else {
+      falseItems.push(item);
+    }
+  });
+
+  return [trueItems, falseItems];
+}

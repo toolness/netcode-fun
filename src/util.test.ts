@@ -1,4 +1,4 @@
-import { memoryConservingMap, clone, replaceArrayEntry } from "./util";
+import { memoryConservingMap, clone, replaceArrayEntry, partitionArray } from "./util";
 
 describe("memoryConservingMap()", () => {
   it("returns identical array when array is unchanged", () => {
@@ -35,5 +35,15 @@ describe("replaceArrayEntry()", () => {
     expect(() => replaceArrayEntry([], 0, 1)).toThrow('Array index 0 is out of bounds');
     expect(() => replaceArrayEntry([1], -1, 1)).toThrow('Array index -1 is out of bounds');
     expect(() => replaceArrayEntry([1], 99, 1)).toThrow('Array index 99 is out of bounds');
+  });
+});
+
+describe("partitionArray()", () => {
+  it("works with empty arrays", () => {
+    expect(partitionArray([], () => false)).toEqual([[], []]);
+  });
+
+  it("works with non-empty arrays", () => {
+    expect(partitionArray([1, 2, 3], val => val <= 2)).toEqual([[1, 2], [3]]);
   });
 });

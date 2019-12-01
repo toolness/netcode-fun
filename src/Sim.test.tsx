@@ -72,4 +72,32 @@ describe("SimRunner", () => {
     sr.tick();
     expect(sr.currentState.players[0].velocity).toEqual({x: 1, y: 1});
   });
+
+  it("rolls back and applies commands that happened in the past", () => {
+    const sr = new SimRunner(SIM);
+    const xAt = (time: number) => sr.getStateAtTime(time).players[0].position.x;
+
+    sr.tick();
+    sr.tick();
+
+    expect(sr.currentState.time).toBe(2);
+    expect(xAt(0)).toBe(0);
+    expect(xAt(1)).toBe(0);
+    expect(xAt(2)).toBe(0);
+
+    sr.queuedCommands.push({
+      type: 'set-velocity',
+      time: 0,
+      playerIndex: 0,
+      velocity: {x: 5, y: 0}
+    });
+    sr.tick();
+
+    expect(sr.currentState.time).toBe(3);
+    expect(xAt(0)).toBe(0);
+    expect(xAt(1)).toBe(5);
+    expect(xAt(2)).toBe(10);
+    expect(xAt(3)).toBe(15);
+    expect(sr.currentState.players[0].velocity).toEqual({x: 5, y: 0});
+  });
 });

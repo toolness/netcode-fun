@@ -2,7 +2,7 @@ import React from 'react';
 import './Sim.css';
 import { Vec2, vec2Equals, VEC2_ZERO, vec2Add } from './Vec2';
 import { AspectRatio } from './AspectRatio';
-import { memoryConservingMap, replaceArrayEntry, clamp } from './util';
+import { memoryConservingMap, replaceArrayEntry, clamp, partitionArray } from './util';
 
 export type SetPlayerVelocityCommand = {
   type: 'set-velocity';
@@ -64,11 +64,13 @@ export function applySimCommand(s: Sim, command: SimCommand): Sim {
 }
 
 export type SimRunnerOptions = {
-  inputTickDelay: number
+  inputTickDelay: number,
+  historyLength: number,
 };
 
 const DEFAULT_SIM_RUNNER_OPTIONS: SimRunnerOptions = {
   inputTickDelay: 0,
+  historyLength: 1000
 };
 
 export type MultiSimRunnerOptions = SimRunnerOptions & {
@@ -117,8 +119,51 @@ export class MultiSimRunner {
   }
 }
 
+function partitionCommands(commands: SimCommand[], time: number): [SimCommand[], SimCommand[], SimCommand[]] {
+  const past: SimCommand[] = [];
+  const present: SimCommand[] = [];
+  const future: SimCommand[] = [];
+
+  commands.forEach(command => {
+    if (command.time < time) {
+      past.push(command);
+    } else if (command.time > time) {
+      future.push(command);
+    } else {
+      present.push(command);
+    }
+  });
+
+  return [past, present, future];
+}
+
+function executeHistoryEntry({state, commands}: SimHistoryEntry): Sim {
+  commands.forEach(command => { state = applySimCommand(state, command); });
+  state = nextSimState(state, 1);
+  return state;
+}
+
+function partitionCommandsByTime(commands: SimCommand[]): SimCommand[][] {
+  const result: SimCommand[][] = [];
+
+  while (commands.length > 0) {
+    const time = commands[0].time;
+    const [cmdsForTime, rest] = partitionArray(commands, cmd => cmd.time === time);
+    result.push(cmdsForTime);
+    commands = rest;
+  }
+
+  return result;
+}
+
+type SimHistoryEntry = {
+  state: Sim;
+  commands: SimCommand[]
+};
+
 export class SimRunner {
   currentState: Sim;
+  history: SimHistoryEntry[] = [];
   options: SimRunnerOptions;
   queuedCommands: SimCommand[] = [];
 
@@ -130,19 +175,55 @@ export class SimRunner {
     this.currentState = initialState;
   }
 
-  tick() {
-    const commands = this.queuedCommands;
-    this.queuedCommands = [];
-    let state = this.currentState;
-    commands.forEach(command => {
-      if (command.time === state.time) {
-        state = applySimCommand(state, command);
+  private addToHistory(entry: SimHistoryEntry): SimHistoryEntry {
+    this.history.push(entry);
+    const entriesToDelete = this.history.length - this.options.historyLength;
+    if (entriesToDelete > 0) {
+      this.history.splice(0, entriesToDelete);
+    }
+    return entry;
+  }
+
+  private getHistoryIndexForTime(time: number) {
+    const now = this.currentState.time;
+    const index = this.history.length - (now - time);
+    if (index < 0) {
+      throw new Error(`History is not long enough for time ${time}!`);
+    }
+    if (index >= this.history.length) {
+      throw new Error(`Time ${time} is in the present or future, not the past!`);
+    }
+    return index;
+  }
+
+  private rollbackAndApplyCommands(commands: SimCommand[]) {
+    const time = commands[0].time;
+    const start = this.getHistoryIndexForTime(time);
+    this.history[start].commands.push(...commands);
+    for (let i = start; i < this.history.length; i++) {
+      const state = executeHistoryEntry(this.history[i]);
+      const nextI = i + 1;
+      if (nextI < this.history.length) {
+        this.history[nextI].state = state;
       } else {
-        this.queuedCommands.push(command);
+        this.currentState = state;
       }
-    });
-    state = nextSimState(state, 1);
-    this.currentState = state;
+    }
+  }
+
+  getStateAtTime(time: number): Sim {
+    if (time === this.currentState.time) return this.currentState;
+    return this.history[this.getHistoryIndexForTime(time)].state;
+  }
+
+  tick() {
+    const [past, present, future] = partitionCommands(this.queuedCommands, this.currentState.time);
+    this.queuedCommands = future;
+    partitionCommandsByTime(past).forEach(cmds => this.rollbackAndApplyCommands(cmds));
+    this.currentState = executeHistoryEntry(this.addToHistory({
+      state: this.currentState,
+      commands: present
+    }));
   }
 
   setPlayerVelocity(playerIndex: number, velocity: Vec2): SimCommand {
