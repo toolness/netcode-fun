@@ -31,3 +31,8 @@ kbd {
 	-webkit-border-radius: 3px;
 	text-shadow: 0 1px 0 #fff;
 }
+
+input[type="number"] {
+  width: 3em;
+  border: none;
+}

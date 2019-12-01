@@ -5,6 +5,7 @@ import { Vec2, VEC2_ZERO, vec2Subtract } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
 import { useInterval } from './timing';
+import { clamp } from './util';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -29,10 +30,21 @@ const INITIAL_SIM: Sim = {
   time: 0
 };
 
+function clampOrDefaultInt(value: string, min: number, max: number, defaultValue: number): number {
+  const numValue = parseInt(value);
+  if (isNaN(numValue)) {
+    return defaultValue;
+  }
+  return clamp(numValue, min, max);
+}
+
+const MIN_FPS = 1;
+const MAX_FPS = 60;
+
 const App: React.FC = () => {
   const inputTickDelay = 3;
   const networkTickDelay = 5;
-  const simFPS = 60;
+  const [simFPS, setSimFPS] = useState(MAX_FPS);
   const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
   const [sim2, setSim2] = useState(sr.runners[1].currentState);
@@ -58,7 +70,7 @@ const App: React.FC = () => {
           </div>
           <div>
             <h2>Configuration</h2>
-            <p>Simulation FPS: {simFPS}</p>
+            <p><label htmlFor="fps">Simulation FPS:</label> <input id="fps" type="number" value={simFPS} min={MIN_FPS} max={MAX_FPS} onChange={(e) => setSimFPS(clampOrDefaultInt(e.target.value, MIN_FPS, MAX_FPS, simFPS))} /></p>
             <p>Input frame delay: {inputTickDelay}</p>
             <p>Network frame delay: {networkTickDelay}</p>
           </div>
