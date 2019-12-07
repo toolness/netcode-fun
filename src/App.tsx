@@ -59,9 +59,32 @@ const IntegerInput: React.FC<{
   min: number,
   max: number
 }> = (props) => {
+  const [isEmpty, setIsEmpty] = useState(false);
+
   return <>
     <label htmlFor={props.id}>{props.label}:</label>{' '}
-    <input type="number" value={props.value} min={props.min} max={props.max} onChange={(e) => props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value))} onKeyDown={focusPageOnEnterOrESC} />
+    <input
+      type="number"
+      pattern="\d*" /* Enable keypad on iOS. */
+      value={isEmpty ? '' : props.value}
+      min={props.min}
+      max={props.max}
+      onChange={(e) => {
+        const { value } = e.target;
+        if (value) {
+          setIsEmpty(false);
+          props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value));
+        } else {
+          setIsEmpty(true);
+        }
+      }}
+      onBlur={() => {
+        if (isEmpty) {
+          setIsEmpty(false);
+        }
+      }}
+      onKeyDown={focusPageOnEnterOrESC}
+    />
   </>
 };
 
