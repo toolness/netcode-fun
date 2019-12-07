@@ -1,4 +1,4 @@
-import express from 'express';
+import WebSocket from 'ws';
 import dotenv from 'dotenv';
 import twilio from 'twilio';
 import { getPositiveIntEnv, getRequiredEnv } from './env';
@@ -9,15 +9,15 @@ const PORT = getPositiveIntEnv('PORT', '3001');
 const TWILIO_ACCOUNT_SID = getRequiredEnv('TWILIO_ACCOUNT_SID');
 const TWILIO_AUTH_TOKEN = getRequiredEnv('TWILIO_AUTH_TOKEN');
 
-const app = express();
-const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
-
-app.get('/', (req, res) => {
-  res.send("Hallo");
-});
-
 export function run() {
-  app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}.`);
+  const wss = new WebSocket.Server({ port: PORT }, () => {
+    console.log(`WebSocket server listening on port ${PORT}.`);
+  });
+  const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+  wss.on('connection', ws => {
+    console.log('connection!');
+
+    ws.send('hallo.');
   });
 };
