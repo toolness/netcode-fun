@@ -39,7 +39,7 @@ const SPEED_SCALE = 0.1;
 const App: React.FC = () => {
   const [playerSpeed, setPlayerSpeed] = useState(10);
   const [inputTickDelay, setInputTickDelay] = useState(3);
-  const [networkTickDelay, setNetworkTickDelay] = useState(2);
+  const [networkTickDelay, setNetworkTickDelay] = useState(6);
   const [simFPS, setSimFPS] = useState(MAX_FPS);
   const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
