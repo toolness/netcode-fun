@@ -1,3 +1,12 @@
+/* Urg, iOS Safari aggressively goes into text selection mode
+ * even if we put "-webkit-user-select: none" and prevent default
+ * behavior of touch events on our virtual keypad, and the only
+ * thing that seems to fix it is setting the *entire document* to
+ * disable text selection. :( */
+html.disable-ios-text-selection {
+  -webkit-user-select: none;
+}
+
 .App {
   text-align: center;
   width: 100%;

@@ -8,10 +8,27 @@ export type ButtonState = {
   [K in Button]?: boolean
 };
 
-export const InputContext = React.createContext<ButtonState>({});
+type ButtonSetter = (button: Button, isDown: boolean) => void;
+
+export type InputContextType = {
+  buttons: ButtonState,
+  setButton: ButtonSetter,
+};
+
+export const InputContext = React.createContext<InputContextType>({
+  buttons: {},
+  setButton: () => {},
+});
 
 export const InputManager: React.FC = props => {
-  const [state, setState] = useState<ButtonState>({});
+  const [buttons, setButtons] = useState<ButtonState>({});
+
+  const setButton: ButtonSetter = (button, isDown) => {
+    setButtons(prevButtons => ({
+      ...prevButtons,
+      [button]: isDown
+    }));
+  };
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -19,10 +36,7 @@ export const InputManager: React.FC = props => {
 
       const isDown = e.type === 'keydown';
 
-      setState(prevState => ({
-        ...prevState,
-        [e.key.toLowerCase()]: isDown
-      }));
+      setButton(e.key.toLowerCase() as Button, isDown);
     };
 
     window.addEventListener('keydown', listener, USE_CAPTURE);
@@ -34,7 +48,7 @@ export const InputManager: React.FC = props => {
     };
   }, []);
 
-  return <InputContext.Provider value={state} {...props} />;
+  return <InputContext.Provider value={{buttons, setButton}} {...props} />;
 };
 
 export function buttonName(button: Button): string {

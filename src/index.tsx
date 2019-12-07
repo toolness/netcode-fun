@@ -10,3 +10,9 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+const userAgent = window.navigator.userAgent;
+
+if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
+  document.documentElement.classList.add('disable-ios-text-selection');
+}

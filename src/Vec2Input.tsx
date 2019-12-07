@@ -22,7 +22,7 @@ function usePrevious<T>(value: T): T|undefined {
 }
 
 function useAxis(positiveBtn: Button, negativeBtn: Button): [number, number|undefined] {
-  const {[positiveBtn]: positive, [negativeBtn]: negative} = useContext(InputContext);
+  const {[positiveBtn]: positive, [negativeBtn]: negative} = useContext(InputContext).buttons;
   const [value, setValue] = useState(getAxis(!!positive, !!negative));
   const prevValue = usePrevious(value);
 
