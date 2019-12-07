@@ -5,7 +5,7 @@ import { Vec2, VEC2_ZERO, vec2Subtract, vec2Scale } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
 import { useInterval } from './timing';
-import { clamp } from './util';
+import { IntegerInput } from './IntegerInput';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
@@ -30,63 +30,11 @@ const INITIAL_SIM: Sim = {
   time: 0
 };
 
-function clampOrDefaultInt(value: string, min: number, max: number, defaultValue: number): number {
-  const numValue = parseInt(value);
-  if (isNaN(numValue)) {
-    return defaultValue;
-  }
-  return clamp(numValue, min, max);
-}
-
 const MIN_FPS = 1;
 const MAX_FPS = 60;
 const MIN_SPEED = 1;
 const MAX_SPEED = 100;
 const SPEED_SCALE = 0.1;
-
-function focusPageOnEnterOrESC(e: React.KeyboardEvent) {
-  if (e.keyCode === 13 || e.keyCode === 27) {
-    e.preventDefault();
-    document.documentElement.focus();
-  }
-}
-
-const IntegerInput: React.FC<{
-  id: string,
-  label: string,
-  value: number,
-  onChange: (value: number) => void,
-  min: number,
-  max: number
-}> = (props) => {
-  const [isEmpty, setIsEmpty] = useState(false);
-
-  return <>
-    <label htmlFor={props.id}>{props.label}:</label>{' '}
-    <input
-      type="number"
-      pattern="\d*" /* Enable keypad on iOS. */
-      value={isEmpty ? '' : props.value}
-      min={props.min}
-      max={props.max}
-      onChange={(e) => {
-        const { value } = e.target;
-        if (value) {
-          setIsEmpty(false);
-          props.onChange(clampOrDefaultInt(e.target.value, props.min, props.max, props.value));
-        } else {
-          setIsEmpty(true);
-        }
-      }}
-      onBlur={() => {
-        if (isEmpty) {
-          setIsEmpty(false);
-        }
-      }}
-      onKeyDown={focusPageOnEnterOrESC}
-    />
-  </>
-};
 
 const App: React.FC = () => {
   const [playerSpeed, setPlayerSpeed] = useState(10);
