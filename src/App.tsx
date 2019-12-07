@@ -91,12 +91,12 @@ const App: React.FC = () => {
     <InputManager>
       <div className="App">
         <div className="App-viewports">
-          <div>
+          <div className="App-player-1">
             <h2>Player 1</h2>
             <SimViz sim={sim1} />
             <Vec2Input up="w" down="s" left="a" right="d" onChange={movePlayer1} />
           </div>
-          <div>
+          <div className="App-config">
             <h2>Configuration</h2>
             <p>
               <IntegerInput id="fps" label="Simulation FPS" min={MIN_FPS} max={MAX_FPS} value={simFPS} onChange={setSimFPS} />
@@ -117,7 +117,7 @@ const App: React.FC = () => {
               This is an exploration of delay and rollback-based netcode in a simulated network environment. For more details, please see the <a href="https://github.com/toolness/netcode-fun#readme" target="_blank" rel="noopener noreferrer">GitHub README</a>.
             </p>
           </div>
-          <div>
+          <div className="App-player-2">
             <h2>Player 2</h2>
             <SimViz sim={sim2} />
             <Vec2Input up="arrowup" down="arrowdown" left="arrowleft" right="arrowright" onChange={movePlayer2} />

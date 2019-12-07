@@ -6,18 +6,54 @@
 .App-viewports {
   background-color: #282c34;
   min-height: 100vh;
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
   color: white;
 }
 
-.App-viewports > div {
-  width: 33vw;
+.App-viewports > .App-config {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .App-desc {
   display: block;
   color: lightgray;
   font-size: 0.8rem;
+}
+
+@media (min-width: 641px) {
+  .App-viewports {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+  }
+
+  .App-viewports > div {
+    width: 33vw;
+  }
+}
+
+@media (max-width: 640px) {
+  .App-viewports {
+    display: grid;
+    justify-content: center;
+    /* Note that 100vw - 100% is the width of any scrollbar that is present.
+     * For more details, see: https://stackoverflow.com/a/34884924/2422398 */
+    grid-template-columns: calc(50vw - ((100vw - 100%)/2) - 5px) calc(50vw - ((100vw - 100%)/2) - 5px);
+    grid-column-gap: 10px;
+    grid-template-areas:
+      "p1 p2"
+      "config config";
+  }
+
+  .App-viewports > .App-player-1 {
+    grid-area: p1;
+  }
+
+  .App-viewports > .App-player-2 {
+    grid-area: p2;
+  }
+
+  .App-viewports > .App-config {
+    grid-area: config;
+  }
 }
