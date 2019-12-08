@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { getPositiveIntEnv } from './env';
 import { SimRunner } from '../Sim';
 import { SIMPLE_SIM_SETUP } from '../simple-sim-setup';
-import { InvalidMessageError, parseMessage } from '../messaging';
+import { InvalidMessageError, parseMessage, serializeMessage } from '../messaging';
 
 dotenv.config({path: '.env.local'});
 
@@ -47,6 +47,10 @@ class Client {
       if (this.room === null) {
         console.log("TODO JOIN ROOM", msg);
       }
+      break;
+
+      case 'ping':
+      this.ws.send(serializeMessage({type: 'pong'}));
       break;
 
       default:
