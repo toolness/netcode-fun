@@ -1,4 +1,4 @@
-import { JoinRoomMsg } from "./server";
+import { Message, serializeMessage } from './messaging';
 
 function getServerURL(): string {
   const url = process.env.REACT_APP_SERVER_URL;
@@ -18,8 +18,8 @@ export function connectToServer() {
 
   ws.onopen = ev => {
     console.log("OPEN!");
-    const msg: JoinRoomMsg = {playerIndex: 0, room: 'boop'};
-    ws.send(JSON.stringify(msg));
+    const msg: Message = {type: 'join-room', playerIndex: 0, room: 'boop'};
+    ws.send(serializeMessage(msg));
   };
 
   ws.onmessage = ev => {

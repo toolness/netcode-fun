@@ -3,15 +3,9 @@ import dotenv from 'dotenv';
 import { getPositiveIntEnv } from './env';
 import { SimRunner } from '../Sim';
 import { SIMPLE_SIM_SETUP } from '../simple-sim-setup';
-import { safeParseJson, isNumberProp, isStringProp } from '../json-validation';
-import { Jsonable } from '../util';
+import { InvalidMessageError, parseMessage } from '../messaging';
 
 dotenv.config({path: '.env.local'});
-
-export type JoinRoomMsg = {
-  room: string,
-  playerIndex: number,
-};
 
 const PORT = getPositiveIntEnv('PORT', '3001');
 
@@ -26,9 +20,6 @@ class Room {
 
 class Lobby {
   rooms: Map<string, Room> = new Map();
-}
-
-class InvalidMessageError extends Error {
 }
 
 class Client {
@@ -49,29 +40,20 @@ class Client {
   }
 
   handleMessage(data: WebSocket.Data) {
-    if (typeof(data) !== 'string') {
-      throw new InvalidMessageError(`Expected string message but got ${typeof(data)}`);
-    }
+    const msg = parseMessage(data);
 
-    const msg = safeParseJson(data);
-
-    if (msg === undefined) {
-      throw new InvalidMessageError(`Message is not JSON: ${data}`);
-    }
-
-    if (this.room === null) {
-      if (isJoinRoomMsg(msg)) {
+    switch (msg.type) {
+      case 'join-room':
+      if (this.room === null) {
         console.log("TODO JOIN ROOM", msg);
-        return;
       }
+      break;
+
+      default:
+      console.log("TODO process message type", msg.type);
+      break;
     }
-
-    throw new InvalidMessageError(`Got invalid message: ${data}`);
   }
-}
-
-function isJoinRoomMsg(obj: Jsonable): obj is JoinRoomMsg {
-  return (isStringProp(obj, 'room') && isNumberProp(obj, 'playerIndex'));
 }
 
 export function run() {

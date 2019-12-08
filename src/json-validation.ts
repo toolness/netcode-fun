@@ -8,7 +8,7 @@ export function safeParseJson(content: string): Jsonable|undefined {
   }
 }
 
-function getJsonProp(obj: Jsonable, prop: string): Jsonable|undefined {
+export function getJsonProp(obj: Jsonable, prop: string): Jsonable|undefined {
   if (obj === undefined || obj === null) return undefined;
   const desc = Object.getOwnPropertyDescriptor(obj, prop);
   if (!desc) return undefined;
