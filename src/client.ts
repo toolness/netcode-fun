@@ -1,3 +1,5 @@
+import { JoinRoomMsg } from "./server";
+
 function getServerURL(): string {
   const url = process.env.REACT_APP_SERVER_URL;
   if (url) {
@@ -16,9 +18,15 @@ export function connectToServer() {
 
   ws.onopen = ev => {
     console.log("OPEN!");
+    const msg: JoinRoomMsg = {playerIndex: 0, room: 'boop'};
+    ws.send(JSON.stringify(msg));
   };
-  
+
   ws.onmessage = ev => {
     console.log("MESSAGE", ev.data);
+  };
+
+  ws.onclose = ev => {
+    console.log("CLOSE");
   };
 }
