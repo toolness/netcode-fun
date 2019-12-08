@@ -1,11 +1,12 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import './App.css';
-import { Player, Sim, MultiSimRunner, SimViz } from './Sim';
+import { Player, Sim, MultiSimRunner } from './Sim';
 import { Vec2, VEC2_ZERO, vec2Subtract, vec2Scale } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
 import { useInterval } from './timing';
 import { IntegerInput } from './IntegerInput';
+import { SimViz } from './SimViz';
 
 const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
 const SIM_SIZE: Vec2 = {x: 100, y: 100};
