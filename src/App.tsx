@@ -1,35 +1,13 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import './App.css';
-import { Player, Sim, MultiSimRunner } from './Sim';
-import { Vec2, VEC2_ZERO, vec2Subtract, vec2Scale } from "./Vec2";
+import { MultiSimRunner } from './Sim';
+import { Vec2, vec2Scale } from "./Vec2";
 import { InputManager } from './InputManager';
 import { Vec2Input } from './Vec2Input';
 import { useInterval } from './timing';
 import { IntegerInput } from './IntegerInput';
 import { SimViz } from './SimViz';
-
-const PLAYER_SIZE: Vec2 = {x: 5, y: 5};
-const SIM_SIZE: Vec2 = {x: 100, y: 100};
-
-const INITIAL_P1: Player = {
-  number: 1,
-  position: VEC2_ZERO,
-  velocity: VEC2_ZERO,
-  size: PLAYER_SIZE,
-};
-
-const INITIAL_P2: Player = {
-  number: 2,
-  position: vec2Subtract(SIM_SIZE, PLAYER_SIZE),
-  velocity: VEC2_ZERO,
-  size: PLAYER_SIZE,
-};
-
-const INITIAL_SIM: Sim = {
-  players: [INITIAL_P1, INITIAL_P2],
-  size: SIM_SIZE,
-  time: 0
-};
+import { SIMPLE_SIM_SETUP } from './simple-sim-setup';
 
 const MIN_FPS = 1;
 const MAX_FPS = 60;
@@ -42,7 +20,7 @@ const App: React.FC = () => {
   const [inputTickDelay, setInputTickDelay] = useState(3);
   const [networkTickDelay, setNetworkTickDelay] = useState(6);
   const [simFPS, setSimFPS] = useState(MAX_FPS);
-  const sr = useRef(new MultiSimRunner(INITIAL_SIM, {inputTickDelay, networkTickDelay})).current;
+  const sr = useRef(new MultiSimRunner(SIMPLE_SIM_SETUP, {inputTickDelay, networkTickDelay})).current;
   const [sim1, setSim1] = useState(sr.runners[0].currentState);
   const [sim2, setSim2] = useState(sr.runners[1].currentState);
   const fpsInterval = 1000 / simFPS;
