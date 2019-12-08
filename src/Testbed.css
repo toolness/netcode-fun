@@ -1,0 +1,47 @@
+.Testbed-viewports {
+  min-height: 100vh;
+}
+  
+.Testbed-viewports > .Testbed-config {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  @media (min-width: 641px) {
+    .Testbed-viewports {
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+  
+    .Testbed-viewports > div {
+      width: 33vw;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .Testbed-viewports {
+      display: grid;
+      justify-content: center;
+      /* Note that 100vw - 100% is the width of any scrollbar that is present.
+       * For more details, see: https://stackoverflow.com/a/34884924/2422398 */
+      grid-template-columns: calc(50vw - ((100vw - 100%)/2) - 5px) calc(50vw - ((100vw - 100%)/2) - 5px);
+      grid-column-gap: 10px;
+      grid-template-areas:
+        "p1 p2"
+        "config config";
+    }
+  
+    .Testbed-viewports > .Testbed-player-1 {
+      grid-area: p1;
+    }
+  
+    .Testbed-viewports > .Testbed-player-2 {
+      grid-area: p2;
+    }
+  
+    .Testbed-viewports > .Testbed-config {
+      grid-area: config;
+    }
+  }
+  

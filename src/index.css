@@ -5,6 +5,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #282c34;
+  color: white;
 }
 
 code {
@@ -51,4 +53,19 @@ a {
 
 a:focus {
   outline: 1px solid #09d3ac;
+}
+
+/* Urg, iOS Safari aggressively goes into text selection mode
+ * even if we put "-webkit-user-select: none" and prevent default
+ * behavior of touch events on our virtual keypad, and the only
+ * thing that seems to fix it is setting the *entire document* to
+ * disable text selection. :( */
+ html.disable-ios-text-selection {
+  -webkit-user-select: none;
+}
+
+.desc {
+  display: block;
+  color: lightgray;
+  font-size: 0.8rem;
 }
