@@ -1,4 +1,6 @@
+import React from 'react';
 import { Message, serializeMessage } from './messaging';
+import { useEffect } from 'react';
 
 function getServerURL(): string {
   const url = process.env.REACT_APP_SERVER_URL;
@@ -30,3 +32,14 @@ export function connectToServer() {
     console.log("CLOSE");
   };
 }
+
+export const Client: React.FC<{
+  room: string,
+  playerIndex: number
+}> = props => {
+  useEffect(() => {
+    connectToServer();
+  }, []);
+
+  return <p>TODO connect to room {props.room} as player index {props.playerIndex}</p>;
+};

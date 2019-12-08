@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { connectToServer } from './client';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
@@ -17,5 +16,3 @@ const userAgent = window.navigator.userAgent;
 if (userAgent.match(/iPad/i) || userAgent.match(/iPhone/i)) {
   document.documentElement.classList.add('disable-ios-text-selection');
 }
-
-connectToServer();
