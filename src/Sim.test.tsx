@@ -1,4 +1,4 @@
-import { Player, nextPlayerState, Sim, nextSimState, applySimCommand, SimRunner } from "./Sim";
+import { Player, nextPlayerState, Sim, nextSimState, applySimCommand, SimRunner, SimCommand } from "./Sim";
 
 const PLAYER: Player = {
   number: 1,
@@ -107,5 +107,40 @@ describe("SimRunner", () => {
     expect(xAt(2)).toBe(10);
     expect(xAt(3)).toBe(15);
     expect(sr.currentState.players[0].velocity).toEqual({x: 5, y: 0});
+  });
+
+  it("serializes trivially", () => {
+    const sr1 = new SimRunner(SIM);
+    expect(sr1).toEqual(SimRunner.deserialize(sr1.serialize()));
+  });
+
+  it("serializes history", () => {
+    const sr1 = new SimRunner(SIM);
+    sr1.tick();
+    sr1.queuedCommands.push({
+      type: 'set-velocity',
+      time: 1,
+      playerIndex: 0,
+      velocity: {x: 5, y: 0}
+    });
+    sr1.tick();
+    const sr1Ser = sr1.serialize();
+    expect(sr1Ser.initialState.time).toBe(0);
+    expect(sr1Ser.currentTime).toBe(2);
+    expect(sr1).toEqual(SimRunner.deserialize(sr1Ser));
+  });
+
+  it("serializes queued commands", () => {
+    const sr1 = new SimRunner(SIM);
+    sr1.queuedCommands.push({
+      type: 'set-velocity',
+      time: 1,
+      playerIndex: 0,
+      velocity: {x: 5, y: 0}
+    });
+    sr1.tick();
+    const sr1Copy = SimRunner.deserialize(sr1.serialize());
+    expect(sr1Copy.queuedCommands).toHaveLength(1);
+    expect(sr1).toEqual(sr1Copy);
   });
 });

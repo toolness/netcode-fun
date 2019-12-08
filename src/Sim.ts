@@ -166,6 +166,13 @@ type SimHistoryEntry = {
   commands: SimCommand[]
 };
 
+export type SerializedSimRunner = {
+  initialState: Sim,
+  commands: SimCommand[],
+  currentTime: number,
+  options: SimRunnerOptions,
+}
+
 export class SimRunner {
   currentState: Sim;
   history: SimHistoryEntry[] = [];
@@ -178,6 +185,34 @@ export class SimRunner {
       ...options
     };
     this.currentState = initialState;
+  }
+
+  static deserialize(data: SerializedSimRunner): SimRunner {
+    const runner = new SimRunner(data.initialState, data.options);
+    runner.queuedCommands.push.apply(runner.queuedCommands, data.commands);
+    if (data.currentTime < runner.currentState.time) {
+      throw new Error(`Current time is before initial state time!`);
+    }
+    while (runner.currentState.time !== data.currentTime) {
+      runner.tick();
+    }
+    return runner;
+  }
+
+  serialize(): SerializedSimRunner {
+    const startTime = this.currentState.time - this.history.length;
+    const initialState = this.getStateAtTime(startTime);
+    const commands: SimCommand[] = [];
+    for (let i = 0; i < this.history.length; i++) {
+      commands.push.apply(commands, this.history[i].commands);
+    }
+    commands.push.apply(commands, this.queuedCommands);
+    return {
+      initialState,
+      commands,
+      currentTime: this.currentState.time,
+      options: this.options,
+    };
   }
 
   private addToHistory(entry: SimHistoryEntry): SimHistoryEntry {
