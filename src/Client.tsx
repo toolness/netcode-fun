@@ -52,7 +52,7 @@ class BrowserClient {
 
     switch (msg.type) {
       case 'pong':
-      this.roundTripTime = (Date.now() - this.pingStart) / 2;
+      this.roundTripTime = Date.now() - this.pingStart;
       if (this.onPing) {
         this.onPing(this.roundTripTime);
         this.pingTimeout = window.setTimeout(this.ping, PING_INTERVAL_MS);
