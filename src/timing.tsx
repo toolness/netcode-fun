@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { FPSTimer } from './fps-timer';
 
 export function useRequestAnimationFrame(fn: () => void) {
   const animRef = useRef(-1);
@@ -23,4 +24,16 @@ export function useInterval(fn: () => void, ms: number) {
       window.clearInterval(intervalRef.current);
     };
   }, [fn, ms]);
+}
+
+export function useFPS(callback: () => void, fps: number) {
+  useEffect(() => {
+    const timer = new FPSTimer(
+      fps,
+      callback,
+      () => performance.now()
+    );
+
+    return () => timer.stop();
+  }, [fps, callback]);
 }

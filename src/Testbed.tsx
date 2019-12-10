@@ -3,7 +3,7 @@ import './Testbed.css';
 import { MultiSimRunner } from './Sim';
 import { Vec2, vec2Scale } from "./Vec2";
 import { Vec2Input } from './Vec2Input';
-import { useInterval } from './timing';
+import { useFPS } from './timing';
 import { IntegerInput } from './IntegerInput';
 import { SimViz } from './SimViz';
 import { SIMPLE_SIM_SETUP } from './simple-sim-setup';
@@ -34,7 +34,7 @@ const Testbed: React.FC = () => {
 
   useEffect(() => sr.setInputTickDelay(inputTickDelay), [inputTickDelay, sr]);
   useEffect(() => sr.setNetworkTickDelay(networkTickDelay), [networkTickDelay, sr]);
-  useInterval(nextTick, fpsInterval);
+  useFPS(nextTick, simFPS);
 
   return (
     <div className="Testbed-viewports">
