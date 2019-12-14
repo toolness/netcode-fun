@@ -3,7 +3,8 @@ import { Jsonable } from "./util";
 
 export type Message =
   | { type: 'join-room', room: string, playerIndex: number }
-  | { type: 'ping'|'pong' };
+  | { type: 'ping' }
+  | { type: 'pong', now: number };
 
 type MessageValidatorMap = {
   [K in Message["type"]]: (obj: Jsonable) => boolean
@@ -14,7 +15,7 @@ const alwaysValid = () => true;
 const MESSAGE_VALIDATORS: MessageValidatorMap = {
   'join-room': obj => isStringProp(obj, 'room') && isNumberProp(obj, 'playerIndex'),
   'ping': alwaysValid,
-  'pong': alwaysValid,
+  'pong': obj => isNumberProp(obj, 'now'),
 };
 
 function isValidMessageType(type: string): type is Message["type"] {

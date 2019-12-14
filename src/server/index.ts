@@ -1,3 +1,4 @@
+import { performance } from 'perf_hooks';
 import WebSocket from 'ws';
 import dotenv from 'dotenv';
 import { getPositiveIntEnv } from './env';
@@ -50,7 +51,7 @@ class Client {
       break;
 
       case 'ping':
-      this.ws.send(serializeMessage({type: 'pong'}));
+      this.ws.send(serializeMessage({type: 'pong', now: performance.now()}));
       break;
 
       default:
