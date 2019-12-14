@@ -22,3 +22,7 @@ export function isStringProp(obj: Jsonable, prop: string): boolean {
 export function isNumberProp(obj: Jsonable, prop: string): boolean {
   return typeof(getJsonProp(obj, prop)) === 'number';
 }
+
+export function isObjectProp(obj: Jsonable, prop: string): boolean {
+  return typeof(getJsonProp(obj, prop)) === 'object';
+}

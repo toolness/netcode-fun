@@ -1,8 +1,10 @@
-import { safeParseJson, isStringProp, isNumberProp, getJsonProp } from "./json-validation";
+import { safeParseJson, isStringProp, isNumberProp, getJsonProp, isObjectProp } from "./json-validation";
 import { Jsonable } from "./util";
+import { SerializedSimRunner } from "./Sim";
 
 export type Message =
   | { type: 'join-room', room: string, playerIndex: number }
+  | { type: 'room-joined', timeOrigin: number, simRunner: SerializedSimRunner }
   | { type: 'ping' }
   | { type: 'pong', now: number };
 
@@ -16,6 +18,7 @@ const MESSAGE_VALIDATORS: MessageValidatorMap = {
   'join-room': obj => isStringProp(obj, 'room') && isNumberProp(obj, 'playerIndex'),
   'ping': alwaysValid,
   'pong': obj => isNumberProp(obj, 'now'),
+  'room-joined': obj => isNumberProp(obj, 'timeOrigin') && isObjectProp(obj, 'simRunner'),
 };
 
 function isValidMessageType(type: string): type is Message["type"] {

@@ -39,4 +39,14 @@ describe("ServerTimeSynchronizer", () => {
     sync.update(2, 10);
     expect(sync.updates).toBe(2);
   });
+
+  it('translates between server time and our time', () => {
+    now = 5;
+    sync.update(2, 10);
+    expect(sync.fromServerTime(15)).toBe(9);
+
+    // Our time should make no difference.
+    now = 10;
+    expect(sync.fromServerTime(15)).toBe(9);
+  });
 });

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Message, serializeMessage, parseMessage } from './messaging';
 import { useEffect } from 'react';
 import { ServerTimeSynchronizer } from './time-sync';
+import { SimRunner } from './Sim';
 
 const PING_INTERVAL_MS = 1000;
 
@@ -32,11 +33,13 @@ class BrowserClient {
   private roundTripTime: number|null = null;
   private state = ClientState.syncingTime;
   private timeSync = new ServerTimeSynchronizer();
+  private simRunner: SimRunner|null = null;
+  private simRunnerTimeOrigin: number = 0;
   onOpen?: () => void;
   onClose?: () => void;
   onPing?: (ms: number) => void;
 
-  constructor(readonly url = getServerURL()) {
+  constructor(readonly room: string, readonly playerIndex: number, readonly url = getServerURL()) {
     this.ws = new WebSocket(url);
     this.ws.onopen = this.handleOpen;
     this.ws.onmessage = this.handleMessage;
@@ -49,13 +52,17 @@ class BrowserClient {
 
   private ping = () => {
     this.pingStart = performance.now();
-    this.ws.send(serializeMessage({type: 'ping'}));
+    this.sendMessage({type: 'ping'});
   };
 
   private handleOpen = () => {
     this.ping();
     this.onOpen && this.onOpen();
   };
+
+  private sendMessage(msg: Message) {
+    this.ws.send(serializeMessage(msg));
+  }
 
   private handleMessage = (ev: MessageEvent) => {
     const msg: Message = parseMessage(ev.data);
@@ -68,11 +75,21 @@ class BrowserClient {
         this.ping();
         if (this.timeSync.updates >= NUM_TIME_SYNC_PINGS) {
           this.state = ClientState.initialized;
+          this.sendMessage({
+            type: 'join-room',
+            room: this.room,
+            playerIndex: this.playerIndex
+          });
         }
       } else if (this.onPing) {
         this.onPing(this.roundTripTime);
         this.pingTimeout = window.setTimeout(this.ping, PING_INTERVAL_MS);
       }
+      return;
+
+      case 'room-joined':
+      this.simRunner = SimRunner.deserialize(msg.simRunner);
+      this.simRunnerTimeOrigin = this.timeSync.fromServerTime(msg.timeOrigin);
       return;
 
       default:
@@ -90,6 +107,10 @@ class BrowserClient {
       window.clearTimeout(this.pingTimeout);
       this.pingTimeout = null;
     }
+    this.onOpen = undefined;
+    this.onClose = undefined;
+    this.onPing = undefined;
+    this.ws.close();
   }
 }
 
@@ -101,11 +122,13 @@ export const Client: React.FC<{
   const [ping, setPing] = useState<number|null>(null);
 
   useEffect(() => {
-    const client = new BrowserClient();
+    const client = new BrowserClient(props.room, props.playerIndex);
     client.onOpen = () => setConnState('connected');
     client.onClose = () => setConnState('disconnected');
     client.onPing = ms => setPing(ms);
-  }, []);
+
+    return () => client.shutdown();
+  }, [props.room, props.playerIndex]);
 
   return <div>
     <p>Connection state: {connState}</p>

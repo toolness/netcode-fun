@@ -22,7 +22,17 @@ export function replaceArrayEntry<T>(arr: T[], index: number, entry: T): T[] {
   return result;
 }
 
-export type Jsonable = string|number|boolean|null|Jsonable[]|{[property: string]: Jsonable};
+/**
+ * A type that can be loslessly serialized to/from JSON.
+ *
+ * Ugh, the last part of this used to be `{[key: string]: Jsonable}` but this
+ * doesn't work because TS will complain that an object which is actually
+ * JSON-serializable has no index signature, so I changed the last part to
+ * `object` which sort of defeats the purpose of this type, but whatever.
+ *
+ * More details here: https://github.com/microsoft/TypeScript/issues/1897
+ */
+export type Jsonable = string|number|boolean|null|Jsonable[]|object;
 
 export function clone<T extends Jsonable>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));

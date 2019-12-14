@@ -30,4 +30,8 @@ export class ServerTimeSynchronizer {
     const timePassed = this.now() - this.bestClientTime;
     return this.bestServerTime + timePassed;
   }
+
+  fromServerTime(serverTime: number) {
+    return serverTime + (this.bestClientTime - this.bestServerTime);
+  }
 }

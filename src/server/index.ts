@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { getPositiveIntEnv } from './env';
 import { SimRunner } from '../Sim';
 import { SIMPLE_SIM_SETUP } from '../simple-sim-setup';
-import { InvalidMessageError, parseMessage, serializeMessage } from '../messaging';
+import { InvalidMessageError, parseMessage, serializeMessage, Message } from '../messaging';
 
 dotenv.config({path: '.env.local'});
 
@@ -12,15 +12,35 @@ const PORT = getPositiveIntEnv('PORT', '3001');
 
 class Room {
   simRunner: SimRunner;
-  players: {[playerIndex: number]: WebSocket} = {};
+  timeOrigin: number = performance.now();
+  players: {[playerIndex: number]: Client} = {};
 
   constructor() {
     this.simRunner = new SimRunner(SIMPLE_SIM_SETUP);
+  }
+
+  join(playerIndex: number, client: Client) {
+    // TODO: What if the player index is already taken?
+    this.players[playerIndex] = client;
+    client.sendMessage({
+      type: 'room-joined',
+      timeOrigin: this.timeOrigin,
+      simRunner: this.simRunner.serialize()
+    });
   }
 }
 
 class Lobby {
   rooms: Map<string, Room> = new Map();
+
+  getRoom(name: string) {
+    let room = this.rooms.get(name);
+    if (!room) {
+      room = new Room();
+      this.rooms.set(name, room);
+    }
+    return room;
+  }
 }
 
 class Client {
@@ -40,18 +60,25 @@ class Client {
     });
   }
 
+  sendMessage(msg: Message) {
+    this.ws.send(serializeMessage(msg));
+  }
+
   handleMessage(data: WebSocket.Data) {
     const msg = parseMessage(data);
 
     switch (msg.type) {
       case 'join-room':
-      if (this.room === null) {
-        console.log("TODO JOIN ROOM", msg);
+      if (this.room) {
+        throw new InvalidMessageError('Client is already in a room!');
       }
+      const room = this.lobby.getRoom(msg.room);
+      room.join(msg.playerIndex, this);
+      this.room = room;
       break;
 
       case 'ping':
-      this.ws.send(serializeMessage({type: 'pong', now: performance.now()}));
+      this.sendMessage({type: 'pong', now: performance.now()});
       break;
 
       default:
