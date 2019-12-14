@@ -6,13 +6,19 @@ export class ServerTimeSynchronizer {
   private bestRTT: number = Infinity;
   private bestServerTime: number;
   private bestClientTime: number;
+  private _updates: number = 0;
 
   constructor(readonly now: () => number = () => performance.now()) {
     this.bestServerTime = now();
     this.bestClientTime = now();
   }
 
+  get updates() {
+    return this._updates;
+  }
+
   update(roundTripTime: number, serverTime: number) {
+    this._updates += 1;
     if (roundTripTime < this.bestRTT) {
       this.bestRTT = roundTripTime;
       this.bestServerTime = serverTime + roundTripTime / 2;

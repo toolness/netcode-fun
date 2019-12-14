@@ -33,4 +33,10 @@ describe("ServerTimeSynchronizer", () => {
     sync.update(2, 10);
     expect(sync.serverNow()).toBe(11);
   });
+
+  it("remembers how many updates it's been given", () => {
+    sync.update(80, 100);
+    sync.update(2, 10);
+    expect(sync.updates).toBe(2);
+  });
 });

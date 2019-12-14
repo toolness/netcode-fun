@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Message, serializeMessage, parseMessage } from './messaging';
 import { useEffect } from 'react';
+import { ServerTimeSynchronizer } from './time-sync';
 
 const PING_INTERVAL_MS = 1000;
 
@@ -17,11 +18,20 @@ function getServerURL(): string {
   return `${protocol}//${window.location.hostname}:${port}/`;
 }
 
+const NUM_TIME_SYNC_PINGS = 3;
+
+enum ClientState {
+  syncingTime,
+  initialized
+}
+
 class BrowserClient {
   private readonly ws: WebSocket;
   private pingTimeout: number|null = null;
   private pingStart: number = 0;
   private roundTripTime: number|null = null;
+  private state = ClientState.syncingTime;
+  private timeSync = new ServerTimeSynchronizer();
   onOpen?: () => void;
   onClose?: () => void;
   onPing?: (ms: number) => void;
@@ -53,7 +63,14 @@ class BrowserClient {
     switch (msg.type) {
       case 'pong':
       this.roundTripTime = performance.now() - this.pingStart;
-      if (this.onPing) {
+      if (this.state === ClientState.syncingTime) {
+        console.log('timeSync update', this.roundTripTime, msg.now);
+        this.timeSync.update(this.roundTripTime, msg.now);
+        this.ping();
+        if (this.timeSync.updates >= NUM_TIME_SYNC_PINGS) {
+          this.state = ClientState.initialized;
+        }
+      } else if (this.onPing) {
         this.onPing(this.roundTripTime);
         this.pingTimeout = window.setTimeout(this.ping, PING_INTERVAL_MS);
       }
@@ -93,7 +110,7 @@ export const Client: React.FC<{
 
   return <div>
     <p>Connection state: {connState}</p>
-    {ping && <p>Ping: {ping} ms</p>}
+    {ping !== null && <p>Ping: {ping} ms</p>}
     <p><strong>TODO</strong> connect to room {props.room} as player index {props.playerIndex}</p>
   </div>;
 };
