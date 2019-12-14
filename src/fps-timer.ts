@@ -8,14 +8,23 @@ export class FPSTimer {
   constructor(
     readonly fps: number,
     readonly callback: () => void,
-    readonly now: () => number
+    readonly now: () => number,
+    readonly syncWithStartTime?: number,
   ) {
+    const currTime = now();
+    const virtualStartTime = syncWithStartTime ?? currTime;
+    const timeSinceVirtualStartTime = currTime - virtualStartTime;
+
     this.idealDelta = 1000 / fps;
-    this.start = this.now();
+
+    const msSinceLastFrame = Math.abs(timeSinceVirtualStartTime % this.idealDelta);
+    const msToNextFrame = this.idealDelta - msSinceLastFrame;
+
+    this.start = currTime - msSinceLastFrame;
     this._frame = 0;
     this.totalDelta = 0;
     this.next = this.next.bind(this);
-    this.timeout = setTimeout(this.next, this.idealDelta);
+    this.timeout = setTimeout(this.next, msToNextFrame);
   }
 
   private next() {
