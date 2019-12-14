@@ -4,7 +4,7 @@ import { SerializedSimRunner } from "./Sim";
 
 export type Message =
   | { type: 'join-room', room: string, playerIndex: number }
-  | { type: 'room-joined', timeOrigin: number, simRunner: SerializedSimRunner }
+  | { type: 'room-joined', timeOrigin: number, fps: number, simRunner: SerializedSimRunner }
   | { type: 'ping' }
   | { type: 'pong', now: number };
 

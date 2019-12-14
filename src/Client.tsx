@@ -3,6 +3,7 @@ import { Message, serializeMessage, parseMessage } from './messaging';
 import { useEffect } from 'react';
 import { ServerTimeSynchronizer } from './time-sync';
 import { SimRunner } from './Sim';
+import { FPSTimer } from './fps-timer';
 
 const PING_INTERVAL_MS = 1000;
 
@@ -34,7 +35,7 @@ class BrowserClient {
   private state = ClientState.syncingTime;
   private timeSync = new ServerTimeSynchronizer();
   private simRunner: SimRunner|null = null;
-  private simRunnerTimeOrigin: number = 0;
+  private fpsTimer: FPSTimer|null = null;
   onOpen?: () => void;
   onClose?: () => void;
   onPing?: (ms: number) => void;
@@ -64,6 +65,11 @@ class BrowserClient {
     this.ws.send(serializeMessage(msg));
   }
 
+  private handleTick() {
+    this.simRunner?.tick();
+    console.log("TICK", this.simRunner?.currentState.time);
+  }
+
   private handleMessage = (ev: MessageEvent) => {
     const msg: Message = parseMessage(ev.data);
 
@@ -89,7 +95,12 @@ class BrowserClient {
 
       case 'room-joined':
       this.simRunner = SimRunner.deserialize(msg.simRunner);
-      this.simRunnerTimeOrigin = this.timeSync.fromServerTime(msg.timeOrigin);
+      this.fpsTimer = new FPSTimer(
+        msg.fps,
+        this.handleTick.bind(this),
+        () => performance.now(),
+        this.timeSync.fromServerTime(msg.timeOrigin),
+      );
       return;
 
       default:
@@ -107,6 +118,8 @@ class BrowserClient {
       window.clearTimeout(this.pingTimeout);
       this.pingTimeout = null;
     }
+    this.fpsTimer?.stop();
+    this.fpsTimer = null;
     this.onOpen = undefined;
     this.onClose = undefined;
     this.onPing = undefined;

@@ -5,18 +5,32 @@ import { getPositiveIntEnv } from './env';
 import { SimRunner } from '../Sim';
 import { SIMPLE_SIM_SETUP } from '../simple-sim-setup';
 import { InvalidMessageError, parseMessage, serializeMessage, Message } from '../messaging';
+import { FPSTimer } from '../fps-timer';
 
 dotenv.config({path: '.env.local'});
 
 const PORT = getPositiveIntEnv('PORT', '3001');
+const FPS = 1;
 
 class Room {
   simRunner: SimRunner;
   timeOrigin: number = performance.now();
   players: {[playerIndex: number]: Client} = {};
+  fpsTimer: FPSTimer;
 
   constructor() {
     this.simRunner = new SimRunner(SIMPLE_SIM_SETUP);
+    this.fpsTimer = new FPSTimer(
+      FPS,
+      this.handleTick.bind(this),
+      () => performance.now(),
+      this.timeOrigin
+    );
+  }
+
+  handleTick() {
+    this.simRunner.tick();
+    console.log("TICK", this.simRunner.currentState.time);
   }
 
   join(playerIndex: number, client: Client) {
@@ -25,8 +39,13 @@ class Room {
     client.sendMessage({
       type: 'room-joined',
       timeOrigin: this.timeOrigin,
+      fps: this.fpsTimer.fps,
       simRunner: this.simRunner.serialize()
     });
+  }
+
+  shutdown() {
+    this.fpsTimer.stop();
   }
 }
 
