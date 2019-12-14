@@ -38,7 +38,7 @@ class BrowserClient {
   }
 
   private ping = () => {
-    this.pingStart = Date.now();
+    this.pingStart = performance.now();
     this.ws.send(serializeMessage({type: 'ping'}));
   };
 
@@ -52,7 +52,7 @@ class BrowserClient {
 
     switch (msg.type) {
       case 'pong':
-      this.roundTripTime = Date.now() - this.pingStart;
+      this.roundTripTime = performance.now() - this.pingStart;
       if (this.onPing) {
         this.onPing(this.roundTripTime);
         this.pingTimeout = window.setTimeout(this.ping, PING_INTERVAL_MS);
