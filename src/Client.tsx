@@ -64,7 +64,6 @@ class BrowserClient {
       case 'pong':
       this.roundTripTime = performance.now() - this.pingStart;
       if (this.state === ClientState.syncingTime) {
-        console.log('timeSync update', this.roundTripTime, msg.now);
         this.timeSync.update(this.roundTripTime, msg.now);
         this.ping();
         if (this.timeSync.updates >= NUM_TIME_SYNC_PINGS) {
