@@ -145,7 +145,7 @@ export const Client: React.FC<{
 
   return <div>
     <p>Connection state: {connState}</p>
-    {ping !== null && <p>Ping: {ping} ms</p>}
+    {ping !== null && <p>Ping: {ping.toFixed(0)} ms</p>}
     <p><strong>TODO</strong> connect to room {props.room} as player index {props.playerIndex}</p>
   </div>;
 };
