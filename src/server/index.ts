@@ -19,7 +19,7 @@ class Room {
   players: {[playerIndex: number]: Client} = {};
   fpsTimer: FPSTimer;
 
-  constructor() {
+  constructor(readonly name: string, readonly lobby: Lobby) {
     this.simRunner = new SimRunner(SIMPLE_SIM_SETUP, {
       inputTickDelay: INPUT_TICK_DELAY
     });
@@ -32,7 +32,13 @@ class Room {
   }
 
   handleTick() {
-    this.simRunner.tick();
+    try {
+      this.simRunner.tick();
+    } catch (e) {
+      console.error(e);
+      console.log(`Sim error occurred in room "${this.name}", shutting it down.`);
+      this.shutdown();
+    }
   }
 
   join(playerIndex: number, client: Client) {
@@ -46,10 +52,29 @@ class Room {
     });
   }
 
-  handleSimCommand(command: SimCommand, client: Client) {
+  private playerIndexForClient(client: Client): number|null {
+    for (let playerIndex in this.players) {
+      if (this.players[playerIndex] === client) {
+        return parseInt(playerIndex);
+      }
+    }
+    return null;
+  }
+
+  leave(client: Client) {
+    const index = this.playerIndexForClient(client);
+    if (index !== null) {
+      delete this.players[index];
+      client.handleLeaveRoom();
+    } else {
+      console.log('Player index for client not found!');
+    }
+  }
+
+  handleSimCommand(command: SimCommand, fromClient: Client) {
     this.simRunner.queuedCommands.push(command);
     Object.values(this.players).forEach(c => {
-      if (c !== client) {
+      if (c !== fromClient) {
         c.sendMessage({type: 'sim-command', command});
       }
     });
@@ -57,16 +82,20 @@ class Room {
 
   shutdown() {
     this.fpsTimer.stop();
+    this.lobby.rooms.delete(this.name);
+    Object.values(this.players).forEach(client => {
+      this.leave(client);
+    });
   }
 }
 
 class Lobby {
-  rooms: Map<string, Room> = new Map();
+  readonly rooms: Map<string, Room> = new Map();
 
   getRoom(name: string) {
     let room = this.rooms.get(name);
     if (!room) {
-      room = new Room();
+      room = new Room(name, this);
       this.rooms.set(name, room);
     }
     return room;
@@ -94,6 +123,11 @@ class Client {
     this.ws.send(serializeMessage(msg));
   }
 
+  handleLeaveRoom() {
+    this.room = null;
+    this.sendMessage({type: 'room-left'});
+  }
+
   handleMessage(data: WebSocket.Data) {
     const msg = parseMessage(data);
 
@@ -118,8 +152,14 @@ class Client {
       break;
 
       default:
-      console.log("TODO process message type", msg.type);
+      console.log(`Don't know what to do with message type "${msg.type}"!`);
       break;
+    }
+  }
+
+  shutdown() {
+    if (this.room) {
+      this.room.leave(this);
     }
   }
 }
@@ -134,10 +174,11 @@ export function run() {
   wss.on('connection', ws => {
     console.log("CONNECT");
 
-    new Client(ws, lobby);
+    const client = new Client(ws, lobby);
 
     ws.on('close', () => {
       console.log("DISCONNECT");
+      client.shutdown();
     });
   });
 };

@@ -5,6 +5,7 @@ import { SerializedSimRunner, SimCommand } from "./Sim";
 export type Message =
   | { type: 'join-room', room: string, playerIndex: number }
   | { type: 'room-joined', timeOrigin: number, fps: number, simRunner: SerializedSimRunner }
+  | { type: 'room-left' }
   | { type: 'sim-command', command: SimCommand }
   | { type: 'ping' }
   | { type: 'pong', now: number };
@@ -20,6 +21,7 @@ const MESSAGE_VALIDATORS: MessageValidatorMap = {
   'ping': alwaysValid,
   'pong': obj => isNumberProp(obj, 'now'),
   'room-joined': obj => isNumberProp(obj, 'timeOrigin') && isObjectProp(obj, 'simRunner'),
+  'room-left': alwaysValid,
   'sim-command': obj => isObjectProp(obj, 'command'),
 };
 

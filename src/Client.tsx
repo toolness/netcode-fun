@@ -122,6 +122,11 @@ class BrowserClient {
       }
       return;
 
+      case 'room-left':
+      console.log("Client left the room.");
+      this.ws.close();
+      return;
+
       case 'sim-command':
       if (this.simRunner) {
         this.simRunner.queuedCommands.push(msg.command);
@@ -137,8 +142,8 @@ class BrowserClient {
   };
 
   private handleClose = () => {
-    this.shutdown();
     this.onClose && this.onClose();
+    this.shutdown();
   };
 
   shutdown() {
