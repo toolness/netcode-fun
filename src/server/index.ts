@@ -12,12 +12,14 @@ dotenv.config({path: '.env.local'});
 const PORT = getPositiveIntEnv('PORT', '3001');
 const FPS = 60;
 const INPUT_TICK_DELAY = 3;
+const ROOM_SHUTDOWN_IDLE_SECONDS = 60;
 
 class Room {
   simRunner: SimRunner;
   timeOrigin: number = performance.now();
   players: {[playerIndex: number]: Client} = {};
   fpsTimer: FPSTimer;
+  framesWithNoPlayers = 0;
 
   constructor(readonly name: string, readonly lobby: Lobby) {
     this.simRunner = new SimRunner(SIMPLE_SIM_SETUP, {
@@ -29,6 +31,11 @@ class Room {
       () => performance.now(),
       this.timeOrigin
     );
+    console.log(`Created room "${name}".`);
+  }
+
+  get numPlayers(): number {
+    return Object.keys(this.players).length;
   }
 
   handleTick() {
@@ -38,6 +45,16 @@ class Room {
       console.error(e);
       console.log(`Sim error occurred in room "${this.name}", shutting it down.`);
       this.shutdown();
+    }
+
+    if (this.numPlayers === 0) {
+      this.framesWithNoPlayers += 1;
+      if (this.framesWithNoPlayers / this.fpsTimer.fps >= ROOM_SHUTDOWN_IDLE_SECONDS) {
+        console.log(`Room "${this.name}" has been idle for ${ROOM_SHUTDOWN_IDLE_SECONDS} seconds, shutting it down.`);
+        this.shutdown();
+      }
+    } else {
+      this.framesWithNoPlayers = 0;
     }
   }
 

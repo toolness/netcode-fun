@@ -4,6 +4,7 @@ export class FPSTimer {
   private totalDelta: number;
   private start: number;
   private timeout: any;
+  private isStopped = false;
 
   constructor(
     readonly fps: number,
@@ -30,6 +31,10 @@ export class FPSTimer {
   private next() {
     this._frame++;
     this.callback();
+    if (this.isStopped) {
+      // The callback stopped us, so don't schedule another timeout.
+      return;
+    }
     const now = this.now();
     const idealNow = this.start + this._frame * this.idealDelta;
     const delta = now - idealNow;
@@ -48,5 +53,6 @@ export class FPSTimer {
 
   stop() {
     clearTimeout(this.timeout);
+    this.isStopped = true;
   }
 }
