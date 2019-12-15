@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Message, serializeMessage, parseMessage } from './messaging';
 import { useEffect } from 'react';
 import { ServerTimeSynchronizer } from './time-sync';
-import { SimRunner } from './Sim';
+import { SimRunner, Sim } from './Sim';
 import { FPSTimer } from './fps-timer';
+import { SimViz } from './SimViz';
+import "./Client.css";
+import { Vec2 } from './Vec2';
+import { Vec2Input } from './Vec2Input';
 
 const PING_INTERVAL_MS = 1000;
 
@@ -36,6 +40,7 @@ class BrowserClient {
   private timeSync = new ServerTimeSynchronizer();
   private simRunner: SimRunner|null = null;
   private fpsTimer: FPSTimer|null = null;
+  onSim?: (sim: Sim) => void;
   onOpen?: () => void;
   onClose?: () => void;
   onPing?: (ms: number) => void;
@@ -66,8 +71,19 @@ class BrowserClient {
   }
 
   private handleTick() {
-    this.simRunner?.tick();
-    console.log("TICK", this.simRunner?.currentState.time);
+    if (this.simRunner) {
+      this.simRunner.tick();
+      if (this.onSim) {
+        this.onSim(this.simRunner.currentState);
+      }
+    }
+  }
+
+  movePlayer(v: Vec2) {
+    if (this.simRunner) {
+      const command = this.simRunner.setPlayerVelocity(this.playerIndex, v);
+      this.sendMessage({type: 'sim-command', command});
+    }
   }
 
   private handleMessage = (ev: MessageEvent) => {
@@ -101,6 +117,17 @@ class BrowserClient {
         () => performance.now(),
         this.timeSync.fromServerTime(msg.timeOrigin),
       );
+      if (this.onSim) {
+        this.onSim(this.simRunner.currentState);
+      }
+      return;
+
+      case 'sim-command':
+      if (this.simRunner) {
+        this.simRunner.queuedCommands.push(msg.command);
+      } else {
+        console.log(`Received sim command but no sim runner is set!`);
+      }
       return;
 
       default:
@@ -110,6 +137,7 @@ class BrowserClient {
   };
 
   private handleClose = () => {
+    this.shutdown();
     this.onClose && this.onClose();
   };
 
@@ -133,19 +161,35 @@ export const Client: React.FC<{
 }> = props => {
   const [connState, setConnState] = useState('connecting');
   const [ping, setPing] = useState<number|null>(null);
+  const [sim, setSim] = useState<Sim|null>(null);
+  const activeClient = useRef<BrowserClient|null>(null);
 
   useEffect(() => {
     const client = new BrowserClient(props.room, props.playerIndex);
     client.onOpen = () => setConnState('connected');
-    client.onClose = () => setConnState('disconnected');
+    client.onClose = () => {
+      setConnState('disconnected');
+      setSim(null);
+    };
     client.onPing = ms => setPing(ms);
+    client.onSim = setSim;
+    activeClient.current = client;
 
     return () => client.shutdown();
   }, [props.room, props.playerIndex]);
 
-  return <div>
+  const movePlayer = useCallback((v: Vec2) => {
+    if (activeClient.current) {
+      activeClient.current.movePlayer(v);
+    }
+  }, []);
+
+  return <div className="Sim">
     <p>Connection state: {connState}</p>
+    {sim && <>
+      <SimViz sim={sim} />
+      <Vec2Input up="w" down="s" left="a" right="d" onChange={movePlayer} />
+    </>}
     {ping !== null && <p>Ping: {ping.toFixed(0)} ms</p>}
-    <p><strong>TODO</strong> connect to room {props.room} as player index {props.playerIndex}</p>
   </div>;
 };

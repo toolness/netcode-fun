@@ -2,15 +2,16 @@ import { performance } from 'perf_hooks';
 import WebSocket from 'ws';
 import dotenv from 'dotenv';
 import { getPositiveIntEnv } from './env';
-import { SimRunner } from '../Sim';
+import { SimRunner, SimCommand } from '../Sim';
 import { SIMPLE_SIM_SETUP } from '../simple-sim-setup';
 import { InvalidMessageError, parseMessage, serializeMessage, Message } from '../messaging';
 import { FPSTimer } from '../fps-timer';
+import { Vec2 } from '../Vec2';
 
 dotenv.config({path: '.env.local'});
 
 const PORT = getPositiveIntEnv('PORT', '3001');
-const FPS = 1;
+const FPS = 60;
 
 class Room {
   simRunner: SimRunner;
@@ -30,7 +31,6 @@ class Room {
 
   handleTick() {
     this.simRunner.tick();
-    console.log("TICK", this.simRunner.currentState.time);
   }
 
   join(playerIndex: number, client: Client) {
@@ -41,6 +41,15 @@ class Room {
       timeOrigin: this.timeOrigin,
       fps: this.fpsTimer.fps,
       simRunner: this.simRunner.serialize()
+    });
+  }
+
+  handleSimCommand(command: SimCommand, client: Client) {
+    this.simRunner.queuedCommands.push(command);
+    Object.values(this.players).forEach(c => {
+      if (c !== client) {
+        c.sendMessage({type: 'sim-command', command});
+      }
     });
   }
 
@@ -94,6 +103,12 @@ class Client {
       const room = this.lobby.getRoom(msg.room);
       room.join(msg.playerIndex, this);
       this.room = room;
+      break;
+
+      case 'sim-command':
+      if (this.room) {
+        this.room.handleSimCommand(msg.command, this);
+      }
       break;
 
       case 'ping':
