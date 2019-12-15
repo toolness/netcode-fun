@@ -6,7 +6,6 @@ import { SimRunner, SimCommand } from '../Sim';
 import { SIMPLE_SIM_SETUP } from '../simple-sim-setup';
 import { InvalidMessageError, parseMessage, serializeMessage, Message } from '../messaging';
 import { FPSTimer } from '../fps-timer';
-import { Vec2 } from '../Vec2';
 
 dotenv.config({path: '.env.local'});
 
