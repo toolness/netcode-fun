@@ -11,6 +11,7 @@ dotenv.config({path: '.env.local'});
 
 const PORT = getPositiveIntEnv('PORT', '3001');
 const FPS = 60;
+const INPUT_TICK_DELAY = 3;
 
 class Room {
   simRunner: SimRunner;
@@ -19,7 +20,9 @@ class Room {
   fpsTimer: FPSTimer;
 
   constructor() {
-    this.simRunner = new SimRunner(SIMPLE_SIM_SETUP);
+    this.simRunner = new SimRunner(SIMPLE_SIM_SETUP, {
+      inputTickDelay: INPUT_TICK_DELAY
+    });
     this.fpsTimer = new FPSTimer(
       FPS,
       this.handleTick.bind(this),
