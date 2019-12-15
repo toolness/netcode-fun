@@ -1,4 +1,7 @@
+import path from 'path';
+import http from 'http';
 import { performance } from 'perf_hooks';
+import express from 'express';
 import WebSocket from 'ws';
 import dotenv from 'dotenv';
 import { getPositiveIntEnv } from './env';
@@ -182,9 +185,13 @@ class Client {
 }
 
 export function run() {
-  const wss = new WebSocket.Server({ port: PORT }, () => {
-    console.log(`WebSocket server listening on port ${PORT}.`);
-  });
+  const app = express();
+
+  app.use(express.static(path.join(__dirname, '..', '..', 'build')));
+
+  const server = http.createServer(app);
+
+  const wss = new WebSocket.Server({ server });
 
   const lobby = new Lobby();
 
@@ -197,5 +204,9 @@ export function run() {
       console.log("DISCONNECT");
       client.shutdown();
     });
+  });
+
+  server.listen(PORT, () => {
+    console.log(`HTTP & WebSocket server listening on port ${PORT}.`);
   });
 };
